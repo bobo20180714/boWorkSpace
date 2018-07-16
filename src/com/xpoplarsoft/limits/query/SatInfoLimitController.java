@@ -132,6 +132,7 @@ public class SatInfoLimitController {
 			// 获取当前登录用户信息
 			LoginUserBean loginUser = (LoginUserBean) session.getAttribute("LoginUser");
 			List<SatSubAloneBean> result = service.findGrantUserGroupEquipmentTree(loginUser.getUserId(),sys_resource_id,key);
+			System.out.println("121");
 			return JSONObject.toJSONString(result);
 		}
 	}
