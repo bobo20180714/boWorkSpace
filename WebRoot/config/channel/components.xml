@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<components-conf>
+	<!-- start节点标识组件启动方式： 0:系统启动时组件同时启动 1:组件被调用时启动 -->
+	<component id="test" classImpl="com.xpoplarsoft.channel.component.test.ComponentTest" start="1">
+		<attribute name="tt">ttt</attribute>
+	</component>
+	<component id="validateRule" classImpl="com.xpoplarsoft.validate.component.ValidateRule" start="1">
+	</component>
+</components-conf>

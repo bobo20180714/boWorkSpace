@@ -1,0 +1,342 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<template>
+<group tablespace="field">
+	<statement id="addField">
+	      insert into RESULT_FIELDS(field_id,FCT_ID,field_name,field_type,field_comment,field_length,FIEL_DSCALE,create_time)
+	      values(SEQ_EDQ.nextval,#fct_id#,#field_name#,#field_type#,#field_comment#,#field_length#,#fiel_dscale#,
+	      to_char(sysdate, 'yyyy-mm-dd hh24:mi:ss'))
+	</statement>
+	<statement id="fieldList">
+	      select * from RESULT_FIELDS
+	      where FCT_ID = #fid#
+	      order by create_time desc
+	</statement>
+	<statement id="deleteField">
+	      delete from RESULT_FIELDS
+	      where field_id = #field_id#
+	</statement>
+	<statement id="deleteFieldByFid">
+	      delete from RESULT_FIELDS
+	      where FCT_ID = #fid#
+	</statement>
+</group>	
+
+
+<group tablespace="functionManage">
+	<statement id="queryFunction">
+	      select * from fct
+	      where 1 = 1 and fct_state = 0 and fct_id = #fid#
+	</statement>
+	<statement id="functionList">
+	      select * from fct
+	      where 1 = 1 and fct_state = 0
+	      and islike(fct_name,#functionName#) > 0 
+	      and islike(fct_code,#functionCode#) > 0
+	      and islike(fct_class_name,#className#) > 0
+	      order by engine_time desc
+	</statement>
+	<statement id="paramList">
+	      select * from FCT_PARAM
+	      where FID = #functionId#
+	      order by param_order
+	</statement>
+	<statement id="deleteFunction">
+		update fct set fct_state = 9
+	      where fct_id = #functionId#
+	</statement>
+	<statement id="addFunction">
+	      insert into fct(fct_id,fct_code,fct_name,fct_content,return_type,param_num,fct_class_name,fct_all_path_namej,fct_pck_name,engine_time
+	      ,table_name,fct_type,is_save_result,fct_state,fct_param)
+	      values(#fct_id#,#fct_code#,#fct_name#,#fct_content#,#return_type#,#param_num#,#fct_class_name#,#fct_all_path_namej#,#fct_pck_name#,
+	      to_char(sysdate, 'yyyy-mm-dd hh24:mi:ss'),#table_name#,#fct_type#,#is_save_result#,0,#fct_param#)
+	</statement>
+	<statement id="updateFunction">
+		 update fct set fct_code = #fct_code#,fct_name = #fct_name#,fct_content = #fct_content#,
+		 fct_class_name = #fct_class_name#,fct_all_path_namej = #fct_all_path_namej#,fct_pck_name = #fct_pck_name#,
+		 fct_param = #fct_param#
+		 where fct_id = #fct_id#
+	</statement>
+	<statement id="addParam">
+	      insert into fct_param(field_id,param_name,param_type,param_content,engine_time,fid,param_order)
+	      values(SEQ_EDQ.nextval,#param_name#,#param_type#,#param_content#,to_char(sysdate, 'yyyy-mm-dd hh24:mi:ss'),#fid#,#param_order#)
+	</statement>
+	<statement id="updateParam">
+	      update fct_param set param_name=#param_name#,param_type=#param_type#,param_content=#param_content#
+	      where field_id = #field_id#
+	</statement>
+	<statement id="updateParamOrder">
+	      update fct_param set param_order=#param_order#
+	      where field_id = #field_id#
+	</statement>
+	<statement id="getFunctionParam">
+	      select * from fct_param 
+	      where field_id = #field_id#
+	</statement>
+	<statement id="queryParamByOrder">
+	      select * from fct_param 
+	      where fid = #fid# and param_order = #paramOrder#
+	</statement>
+	<statement id="deleteParamByFid">
+		 delete from fct_param where fid = #fid#
+	</statement>
+	<statement id="getPkId">
+	      select SEQ_EDQ.nextval pk_id from dual 
+	</statement>
+</group>
+
+
+<group tablespace="computeFunc">
+	<statement id="getFunctionInfo">
+		select fct.*,cf.input_param from compute_func cf,fct 
+      	where cf.fct_id = fct.fct_id
+		and cf.pk_id = #compute_id#
+	</statement>
+	<statement id="computeList">
+		select cf.*,fct.fct_class_name,fct.fct_all_path_namej,fct.fct_pck_name from COMPUTE_FUNC cf ,fct 
+    	 where fct.fct_id = cf.fct_id and cf.status=0
+      and islike(cf.compute_name,#compute_name#) > 0 
+      and islike(fct.fct_class_name,#fct_class_name#) > 0 order by cf.create_time desc
+	</statement>
+	<statement id="view">
+		select cf.*,fct.fct_class_name,fct.fct_all_path_namej,fct.fct_pck_name from COMPUTE_FUNC cf ,fct 
+    	 where fct.fct_id = cf.fct_id and cf.pk_id = #compute_id#
+	</statement>
+	<statement id="addComputeFunc">
+		insert into compute_func (pk_id,compute_name,compute_desc,fct_id,status,create_time,version,is_user_defined,user_page_path,
+		over_time,compute_count,is_save_result,is_multicast,input_param)
+	      values(COMPUTE_SEQ.nextval,#compute_name#,#compute_desc#,#fct_id#,0,to_char(sysdate, 'yyyy-mm-dd hh24:mi:ss')
+	      ,#version#,#is_user_defined#,#user_page_path#,
+		#over_time#,#compute_count#,#is_save_result#,#is_multicast#,#input_param#)
+	</statement>
+	<statement id="addFct">
+		insert into fct (fct_id,fct_class_name,fct_all_path_namej,fct_pck_name,fct_state,engine_time,fct_type)
+	      values(#fct_id#,#fct_class_name#,#fct_all_path_namej#,#fct_pck_name#,0,to_char(sysdate, 'yyyy-mm-dd hh24:mi:ss')
+	      ,#fct_type#)
+	</statement>
+	<statement id="updateComputeFunc">
+		update compute_func set compute_name = #compute_name#, compute_desc = #compute_desc# 
+		,version = #version#,is_user_defined = #is_user_defined#,user_page_path = #user_page_path#,
+		over_time = #over_time#,compute_count = #compute_count#
+		,is_save_result = #is_save_result#,is_multicast = #is_multicast#,input_param = #input_param# where pk_id = #pk_id#
+	</statement>
+	<statement id="updateFct">
+		update fct set fct_class_name = #fct_class_name#, fct_all_path_namej = #fct_all_path_namej# 
+		,fct_pck_name = #fct_pck_name#  where fct_id = 
+		(select fct_id from compute_func where  pk_id = #pk_id#)
+	</statement>
+	<statement id="deleteComputeFunc">
+		update compute_func set status=9  where pk_id = #computeId#
+	</statement>
+	<statement id="deleteFct">
+		update fct set FCT_STATE=9  where  fct_id = 
+		(select fct_id from compute_func where  pk_id = #pk_id#)
+	</statement>
+</group>
+<group tablespace="computeType">
+	<statement id="queryAllComputeTypeTree">
+		SELECT distinct T.* FROM (
+           select S.SAT_ID ID,S.SAT_NAME TEXT,-1 PID ,'1' IS_LEAF,'SAT' NODE_TYPE,s.sat_id sat_id,s.mid sat_mid from satellite S
+            where s.status = 0
+          UNION ALL
+         select son.pk_id ID,son.compute_type_name TEXT,son.sat_id PID,son.Is_Leaf,'TYPE' NODE_TYPE,s.sat_id sat_id,s.mid sat_mid from COMPUTE_TYPE son 
+           left join SATELLITE s on s.sat_id = son.sat_id
+          where son.status=0 and son.father_id = -1
+         UNION ALL
+         select son.pk_id ID,son.compute_type_name TEXT,son.Father_Id PID,son.Is_Leaf,'TYPE' NODE_TYPE,s.sat_id sat_id,s.mid sat_mid from COMPUTE_TYPE son 
+           left join SATELLITE s on s.sat_id = son.sat_id
+         left join COMPUTE_TYPE father on father.pk_id = son.Father_Id
+          where son.status=0 and son.father_id != -1
+		) T  where pid = #pid#
+	</statement>
+	<statement id="queryComputeTypeTree">
+		SELECT distinct T.* FROM (
+           select S.SAT_ID ID,S.SAT_NAME TEXT,-1 PID ,'1' IS_LEAF,'SAT' NODE_TYPE,s.sat_id sat_id,s.mid sat_mid from ( 
+				select sat.sat_name,sat.sat_code,sat.sat_id,sat.mid from GRANT_ROLE_RESOURCE grr,satellite sat
+			 	where grr.sys_resource_id = sat.sat_id and grr.grant_type = 0
+				and grr.ug_id = #user_id#
+				union all
+				select sat.sat_name,sat.sat_code,sat.sat_id,sat.mid from GRANT_ROLE_RESOURCE grr,satellite sat
+				where grr.sys_resource_id = sat.sat_id and grr.grant_type = 0 
+				and grr.ug_id = (select ORG_ID from users where users.user_id = #user_id# and rownum = 1)
+				) S
+          UNION ALL
+         select son.pk_id ID,son.compute_type_name TEXT,son.sat_id PID,son.Is_Leaf,'TYPE' NODE_TYPE,s.sat_id sat_id,s.mid sat_mid from COMPUTE_TYPE son 
+           left join SATELLITE s on s.sat_id = son.sat_id
+          where son.status=0 and son.father_id = -1
+         UNION ALL
+         select son.pk_id ID,son.compute_type_name TEXT,son.Father_Id PID,son.Is_Leaf,'TYPE' NODE_TYPE,s.sat_id sat_id,s.mid sat_mid from COMPUTE_TYPE son 
+           left join SATELLITE s on s.sat_id = son.sat_id
+         left join COMPUTE_TYPE father on father.pk_id = son.Father_Id
+          where son.status=0 and son.father_id != -1
+		) T  where pid = #pid#
+	</statement>
+	<statement id="queryComputeTypeAndFuncTree">
+		SELECT distinct T.* FROM (
+           select S.SAT_ID ID,S.SAT_NAME TEXT,-1 PID ,'1' IS_LEAF,'SAT' NODE_TYPE,s.sat_id sat_id,s.mid sat_mid,s.SAT_NAME from ( 
+				select sat.sat_name,sat.sat_code,sat.sat_id,sat.mid from GRANT_ROLE_RESOURCE grr,satellite sat
+			 	where grr.sys_resource_id = sat.sat_id and grr.grant_type = 0
+				and grr.ug_id = #user_id#
+				union all
+				select sat.sat_name,sat.sat_code,sat.sat_id,sat.mid from GRANT_ROLE_RESOURCE grr,satellite sat
+				where grr.sys_resource_id = sat.sat_id and grr.grant_type = 0 
+				and grr.ug_id = (select ORG_ID from users where users.user_id = #user_id# and rownum = 1)
+				) S
+          UNION ALL
+         select son.pk_id ID,son.compute_type_name TEXT,son.sat_id PID,son.Is_Leaf,'TYPE' NODE_TYPE,s.sat_id sat_id,s.mid sat_mid,s.SAT_NAME from COMPUTE_TYPE son 
+           left join SATELLITE s on s.sat_id = son.sat_id
+          where son.status=0 and son.father_id = -1
+         UNION ALL
+         select son.pk_id ID,son.compute_type_name TEXT,son.Father_Id PID,son.Is_Leaf,'TYPE' NODE_TYPE,s.sat_id sat_id,s.mid sat_mid,s.SAT_NAME from COMPUTE_TYPE son 
+           left join SATELLITE s on s.sat_id = son.sat_id
+         left join COMPUTE_TYPE father on father.pk_id = son.Father_Id
+          where son.status=0 and son.father_id != -1
+          UNION ALL
+            select c.pk_id id,c.compute_name text,rel.compute_type_id pid ,'0' is_leaf,'compute' node_type,s.sat_id sat_id,s.mid sat_mid,s.SAT_NAME from COMPUTE_TYPE_FUNC_RELATE rel
+           left join COMPUTE_TYPE ct on ct.pk_id = rel.compute_type_id
+           left join SATELLITE s on s.sat_id = ct.sat_id
+             left join compute_func c on rel.compute_func_id = c.pk_id
+		) T  where pid = #pid#
+	</statement>
+	<statement id="queryAllComputeTypeAndFuncTree">
+		SELECT distinct T.* FROM (
+           select S.SAT_ID ID,S.SAT_NAME TEXT,-1 PID ,'1' IS_LEAF,'SAT' NODE_TYPE,s.sat_id sat_id,s.mid sat_mid,s.SAT_NAME from 
+           satellite S  where s.status = 0
+          UNION ALL
+         select son.pk_id ID,son.compute_type_name TEXT,son.sat_id PID,son.Is_Leaf,'TYPE' NODE_TYPE,s.sat_id sat_id,s.mid sat_mid,s.SAT_NAME from COMPUTE_TYPE son 
+           left join SATELLITE s on s.sat_id = son.sat_id
+          where son.status=0 and son.father_id = -1
+         UNION ALL
+         select son.pk_id ID,son.compute_type_name TEXT,son.Father_Id PID,son.Is_Leaf,'TYPE' NODE_TYPE,s.sat_id sat_id,s.mid sat_mid,s.SAT_NAME from COMPUTE_TYPE son 
+           left join SATELLITE s on s.sat_id = son.sat_id
+         left join COMPUTE_TYPE father on father.pk_id = son.Father_Id
+          where son.status=0 and son.father_id != -1
+          UNION ALL
+            select c.pk_id id,c.compute_name text,rel.compute_type_id pid ,'0' is_leaf,'compute' node_type,s.sat_id sat_id,s.mid sat_mid,s.SAT_NAME from COMPUTE_TYPE_FUNC_RELATE rel
+           left join COMPUTE_TYPE ct on ct.pk_id = rel.compute_type_id
+           left join SATELLITE s on s.sat_id = ct.sat_id
+             left join compute_func c on rel.compute_func_id = c.pk_id
+		) T  where pid = #pid#
+	</statement>
+	<statement id="computeList">
+		select * from compute_type order by create_time desc
+	</statement>
+	<statement id="view">
+		select * from compute_type 
+ 		where pk_id = #pk_id#
+	</statement>
+	<statement id="addComputeType">
+		insert into compute_type (pk_id,compute_type_name,compute_type_desc,father_id,is_leaf,sat_id,status,create_time)
+	      values(COMPUTE_SEQ.nextval,#compute_type_name#,#compute_type_desc#,#father_id#,#is_leaf#,#sat_id#,0,to_char(sysdate, 'yyyy-mm-dd hh24:mi:ss'))
+	</statement>
+	<statement id="updateComputeType">
+		update compute_type set compute_type_name = #compute_type_name#, compute_type_desc = #compute_type_desc# 
+		 where pk_id = #pk_id#
+	</statement>
+	<statement id="deleteComputeType">
+		update compute_type set status=9  where pk_id = #pk_id#
+	</statement>
+	<statement id="addRelation">
+		insert into COMPUTE_TYPE_FUNC_RELATE (PK_ID,COMPUTE_TYPE_ID,COMPUTE_FUNC_ID,
+			OVER_TIME,COMPUTE_COUNT,IS_SAVE_RESULT,IS_MULTICAST)values(
+			COMPUTE_SEQ.nextval,#typeId#,#computeId#,
+			#overTime#,#computeCount#,#isSaveResult#,#isMulticast#
+		)
+	</statement>
+	<statement id="updateRelation">
+	    update COMPUTE_TYPE_FUNC_RELATE set OVER_TIME = #overTime#,COMPUTE_COUNT = #computeCount#,IS_MULTICAST = #isMulticast#
+		where pk_id =  #relateId#
+	</statement>
+	<statement id="deleteRelation">
+		delete from  COMPUTE_TYPE_FUNC_RELATE where COMPUTE_TYPE_ID = #typeId# and COMPUTE_FUNC_ID = #computeId#
+	</statement>
+	<statement id="remoceRelateAllFunc">
+		delete from  COMPUTE_TYPE_FUNC_RELATE where COMPUTE_TYPE_ID = #typeId#
+	</statement>
+	<statement id="deleteRelationByPkId">
+		delete from  COMPUTE_TYPE_FUNC_RELATE where pk_id = #pk_id#
+	</statement>
+	<statement id="getRelatedByTypeId">
+		select r.*,t.compute_type_name,f.compute_name,f.compute_desc
+	    from  COMPUTE_TYPE_FUNC_RELATE r,COMPUTE_TYPE t,compute_func f
+	    where r.compute_type_id = t.pk_id and r.compute_func_id = f.pk_id
+	    and r.COMPUTE_TYPE_ID = case when #typeId#  = -1 then r.COMPUTE_TYPE_ID else #typeId# end
+	    and t.sat_id = #satId#
+	    and  islike(f.compute_name,#compute_name#) > 0 
+	    order by r.pk_id desc
+	</statement>
+	<statement id="viewTypeRelateCompute">
+		select * from  COMPUTE_TYPE_FUNC_RELATE 
+		where compute_func_id = #computeId# and COMPUTE_TYPE_ID = #computeTypeId#
+	</statement>
+</group>
+<group tablespace="orderManager">
+	<statement id="addOrder">
+	      insert into comput_order_info(pk_id,order_id,order_name,time,order_state,order_content,
+	      			comput_param,compute_type_id,comput_id,sat_id,is_get_data,is_result,
+	      			over_time,compute_count,is_save_result,is_multicast,
+	      			order_class,loop_space,loop_maxnum,loop_endtime)
+	      values(COMPUTE_SEQ.NEXTVAL,#order_id#,#order_name#,#time#,2,#order_content#,#comput_param#
+	      ,#comput_type_id#,#comput_id#,#sat_id#,0,0,
+	      #over_time#,#compute_count#,0,0,
+	      			#order_class#,#loop_space#,#loop_maxnum#,#loop_endtime#)
+	</statement>
+	<statement id="orderList">
+	<![CDATA[
+	      select o.*,cf.compute_name compute_fun_name,f.fct_all_path_namej compute_fun_class
+          from comput_order_info o left join COMPUTE_FUNC  cf on cf.pk_id = o.comput_id
+          left join FCT  f on f.FCT_ID = cf.fct_id
+          left join satellite  s on s.sat_id = o.sat_id
+          where 1 = 1 
+           and s.sat_id = #satId#
+      		 and cf.pk_id  = case when #computeId# = -1 then cf.pk_id else #computeId# end
+      		 and o.compute_type_id  = case when #typeId# = '-1' then o.compute_type_id else #typeId# end
+	        and ISLIKE(o.order_name,#order_name#) > 0
+	        and #time_start# < o.time and #time_end# > o.time
+	        and o.order_state != 9
+		      order by o.time
+	      ]]>
+	</statement>
+	<statement id="viewByPkId">
+	    select o.*,s.mid sat_mid,s.sat_name from comput_order_info o 
+		left join satellite s  on o.sat_id = s.sat_id
+	      where o.pk_id=#pkId#
+	</statement>
+	<statement id="viewOrder">
+	      select o.*,
+	      f_getdata.FCT_ALL_PATH_NAMEJ getdata_class_name,f_getdata.FCT_CODE getdata_func_code ,f_getdata.FCT_NAME getdata_func_name ,
+	      f_comput.FCT_ALL_PATH_NAMEJ comput_class_name,f_comput.FCT_CODE comput_func_code ,f_comput.FCT_NAME comput_func_name ,
+	      f_result.FCT_ALL_PATH_NAMEJ result_class_name,f_result.FCT_CODE result_func_code ,f_result.FCT_NAME result_func_name ,
+	      s.SAT_NAME,s.SAT_ID
+	      from comput_order_info o
+	      left join FCT f_getdata on o.GET_DATA_ID = f_getdata.FCT_id
+        left join FCT f_comput on o.COMPUT_ID = f_comput.FCT_id
+        left join FCT f_result on o.RESULT_ID = f_result.FCT_id
+        left join SATELLITE s on o.sat_id = s.sat_id
+	      where o.order_id=#order_id#
+	</statement>
+	<statement id="updateSate">
+	      update comput_order_info set order_state = #order_state#
+	      where order_id = #order_id#
+	</statement>
+	<statement id="updateOrder">
+	      update comput_order_info set order_name = #order_name#,order_content = #order_content#,
+	      over_time = #over_time#,compute_count = #compute_count#,order_state = 2,
+	    comput_param = #comput_param#,time=#time#
+	    ,order_class=#order_class#,loop_space=#loop_space#,loop_maxnum=#loop_maxnum#,loop_endtime=#loop_endtime#
+	      where pk_id = #pk_id#
+	</statement>
+</group>	
+
+<group tablespace="orderLog">
+	<statement id="list">
+	     <![CDATA[
+			select log.*,o.order_name from orderLog log,COMPUT_ORDER_INFO o
+			 where log.orderid = o.order_id and (islike(log.orderid,#orderId#)>0) 
+			 and log.time > case when #startTime# is null then '1-1-1' else #startTime# end 
+		     and log.time <= case when #endTime# is null then log.time else #endTime# end  
+			order by log.time desc
+		]]>
+	</statement>
+</group>
+
+</template>

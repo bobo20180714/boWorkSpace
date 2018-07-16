@@ -1,0 +1,260 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<template>
+<group tablespace="loginMonitor">
+    <statement id="getUser">
+		SELECT USER_ID "id",USER_NAME "name",USER_ACCOUNT "user",PASSWORD "pasd" FROM users WHERE
+		UPPER(TRIM(USER_ACCOUNT))=UPPER(TRIM(#name#)) AND
+		UPPER(TRIM(PASSWORD))=UPPER(TRIM(#password#))
+	</statement>
+	<statement id="exist">
+		SELECT COUNT(USER_ID) FROM users WHERE
+		UPPER(TRIM(USER_ACCOUNT))=UPPER(TRIM(#name#))
+	</statement>
+	<statement id="getUserPsd">
+		SELECT PASSWORD password FROM users WHERE USER_ID=#id#
+	</statement>
+	<statement id="editPsd">
+		UPDATE users set PASSWORD=#newPsd# where USER_ID=#id#
+	</statement>
+</group>
+<group tablespace="dynamic">
+    <statement id="getDynamic">
+		SELECT id "id",name "name",type "type",state "state",icon "icon",comments "comment",time "date" FROM plug WHERE type=1
+	</statement>
+</group>
+<group tablespace="file">
+    <statement id="getLastFile">
+		SELECT "FILE".id "id","FILE".proj_id "proj_id","FILE".name "name","FILE".data "data","FILE".time "date","FILE".user_id "user_id",proj_id projId FROM "FILE" WHERE proj_id=#proId# and rownum=1 ORDER BY time DESC
+	</statement>
+	<statement id="addFile">
+		insert into "FILE" (proj_id,name,data,time,user_id) values(#proId#,#name#,#data#,SYSDATE,#uid#)
+	</statement>
+	<statement id="existFile">
+		select count(id) from "FILE" where proj_id=#proId# and name=#name#
+	</statement>
+	<statement id="updateFile">
+		UPDATE "FILE" set data=#data#,time=sysdate where proj_id=#proId#
+		<!-- UPDATE "FILE" set data=#data#,time=sysdate where proj_id=#proId# and name=#name# -->
+	</statement>
+	<statement id="updateFileName">
+		UPDATE "FILE" set name=#name#,time=sysdate where proj_id=#proId#
+	</statement>
+	<statement id="getFileByProId">
+		SELECT id "id",proj_id "proj_id",name "name",data "data",time "date",user_id FROM "FILE" WHERE proj_id IN (SELECT id FROM project start with id=#proId# connect by prior id = owner)
+	</statement>
+	
+	<statement id="getFileListByFload">
+		  SELECT *  FROM project
+		WHERE owner= #proId# and islike(name,#key#) > 0 and status = 0
+	</statement>
+	
+	
+	<statement id="getFileById">
+		SELECT "FILE".id "id","FILE".proj_id "proj_id","FILE".name "name","FILE".data "data","FILE".time "date","FILE".user_id,proj_id projId FROM "FILE" WHERE id=#id#
+	</statement>
+	<statement id="delFile">
+		DELETE FROM "FILE" WHERE id=#id#
+	</statement>
+	<statement id="addLib">
+		insert into proj_lib(proj_id,lib_id) SELECT #proId#,lib_id FROM proj_lib where proj_id=#srcProjId#
+	</statement>
+	<statement id="addJar">
+		insert into proj_jar(proj_id,jar_id) SELECT #proId#,jar_id FROM proj_jar where proj_id=#srcProjId#
+	</statement>
+</group>
+<group tablespace="jar">
+    <statement id="registJar">
+		insert into jar(id,time,device_id,type,name,ver,descr) values(#id1#,sysdate,#id#,#type#,#name#,#ver#,#desc#)
+	</statement>
+	<statement id="existJar">
+		select id "id" from jar where device_id=#id# and type=#type#
+	</statement>
+	<statement id="updateJar">
+		UPDATE jar set name=#name#,ver=#ver#,descr=#desc# where device_id=#id# and type=#type#
+	</statement>
+	<statement id="getSelectJar">
+		SELECT id "id",time "date",device_id "device_id",type "type",name "name",ver "ver",descr "desc" FROM jar WHERE id NOT IN (SELECT jar_id FROM proj_jar WHERE proj_id=#proId#)
+	</statement>
+	<statement id="addProjJar">
+		insert into proj_jar(proj_id,jar_id) values(#proId#,#jarId#)
+	</statement>
+	<statement id="getSelectedJar">
+		SELECT id "id",proj_id "projId",jar_id "jarId" FROM proj_jar WHERE proj_id=#proId#
+	</statement>
+	<statement id="delJar">
+		delete from jar where id=#id#
+	</statement>
+	<statement id="delProjJar">
+		delete from proj_jar where proj_id=#proId# and jar_id=#jarId#
+	</statement>
+	<statement id="getSingleJar">
+		SELECT id "id",time "date",device_id "device_id",type "type",ver "ver",descr "desc" FROM jar WHERE id=#proId#
+	</statement>
+	<statement id="registParams">
+		insert into params(jar_id,param_id,name,code) values(#jarId#,#param_id#,#name#,#code#)
+	</statement>
+	<statement id="existParams">
+		select count(id) from params where jar_id=#jarId# and param_id=#param_id#
+	</statement>
+	<statement id="updateParams">
+		UPDATE params set name=#name#,code=#code# where jar_id=#jarId# and param_id=#param_id#
+	</statement>
+	<statement id="getParams">
+		SELECT id "id",jar_id "jar_id",param_id "param_id",name "name",code "code" FROM params WHERE jar_id=#jarId# order by id
+	</statement>
+	<statement id="getAllParIds">
+		SELECT id "id",param_id "parId" FROM params WHERE jar_id=#jarId#
+	</statement>
+	<statement id="getJarId">
+		SELECT id "id" FROM jar WHERE device_id=#devId# AND type=#dataSource#
+	</statement>
+</group>
+<group tablespace="lib">
+	<statement id="addLib">
+		insert into lib(id,name,comments,state) values(#id#,#name#,#comment#,0)
+	</statement>
+	<!-- <statement id="addLibPlug">
+		insert into lib_plug(lib_id,plug_id) values(#libId#,#plugId#)
+	</statement> -->
+	<statement id="getLib">
+		SELECT id "id",name "name",comments "comment" FROM lib where state = 0 and name like '%'||#key#||'%' order by id
+	</statement>
+	<statement id="editLib">
+		update lib set name=#name#,comments=#comment# where id=#id#
+	</statement>
+	<statement id="delLib">
+		update lib set state = 9 where id=#id# 
+	</statement>
+	<statement id="delLibPlug">
+		delete from lib_plug where id=#id#
+	</statement>
+	<statement id="getSelectLib">
+		SELECT id "id",name "name",comments "comment" FROM lib 
+		WHERE id NOT IN (SELECT lib_id FROM proj_lib WHERE proj_id=#proId#)
+		and STATE = 0
+	</statement>
+</group>
+<group tablespace="plug">
+	<statement id="addPlug">
+		insert into plug(id,name,type,state,comments,time,user_id,icon) values(#id#,#name#,#type#,#state#,#comment#,sysdate,#uid#,#icon#)
+	</statement>
+	<statement id="editPlug">
+		update plug set name=#name#,comments=#comment#,icon=#icon# where id=#id#
+	</statement>
+	<statement id="getPlug">
+		SELECT id "id",name "name",type "type",state "state",icon "icon",comments "comment",time "date" FROM plug where type=0 and user_id=#uid# and name like '%'||#key#||'%'
+	</statement>
+	<statement id="getStaticData">
+		SELECT id "id",img "img",exp "exp",plug_id "plug_id",comments "comment",name "name",type "type" FROM static where plug_id=#plugId# ORDER BY id
+	</statement>
+	<statement id="delPlug">
+		delete from plug where id=#id#
+	</statement>
+	<statement id="addStatic">
+		insert into static(id,name,comments,type,exp,plug_id,img) values(#id#,#name#,#comment#,#type#,#exp#,#plug_id#,#img#)
+	</statement>
+	<statement id="editStatic">
+		update static set name=#name#,comments=#comment#,type=#type#,exp=#exp#,img=#img# where id=#id#
+	</statement>
+	<statement id="delGraph">
+		delete from static where id=#id#
+	</statement>
+	<statement id="setComplete">
+		update plug set state=1 where id=#id#
+	</statement>
+	<statement id="getPlugByLibId">
+		SELECT plug.id "id",plug.name "name",plug.type "type",plug.state "state",plug.icon "icon",plug.comments "comment",plug.time "date",lib_plug.id "aid",(SELECT img FROM static WHERE plug_id=plug.id and rownum=1) "img" FROM plug JOIN lib_plug ON plug.id=lib_plug.plug_id WHERE lib_plug.lib_id=#libId#
+	</statement>
+	<statement id="getSelectPlug">
+		SELECT id "id",name "name",type "type",state "state",icon "icon",comments "comment",time "date" FROM plug WHERE state=1 AND id NOT IN (SELECT plug_id FROM lib_plug WHERE lib_id=#libId#)
+	</statement>
+</group>
+<group tablespace="project">
+	<statement id="addNode">
+		insert into project(id,name,owner,user_id,isleaf) values(#id#,#name#,#own#,#uid#,#isleaf#)
+	</statement>
+	<statement id="editNode">
+		update project set name=#name# where id=#id#
+	</statement>
+	<statement id="getProj">
+		SELECT id "id",owner "owner",name "text",isleaf "isleaf" FROM project WHERE user_id=#uid# and status=0 order by id
+	</statement>
+	<statement id="getFileName">
+		SELECT id "id",owner "owner",name "text",isleaf "isleaf" FROM project WHERE user_id=#uid# and status=0 and name=#name# and owner=#owner# order by id
+	</statement>
+	<statement id="getNodeFile">
+		SELECT id "id",owner "owner",name "text",isleaf "isleaf" FROM project WHERE user_id=#uid# and status=0 and owner=#owner# order by id
+	</statement>
+	<statement id="getFloadTree">
+		SELECT * FROM project WHERE ISLEAF=0 and status=0 order by id
+	</statement>
+	<statement id="getAllProj">
+		SELECT id "id",owner "owner",name "text",isleaf "isleaf" FROM project WHERE status=0 order by id
+	</statement>
+	<statement id="delNode">
+		<!-- delete FROM project WHERE id IN (SELECT id FROM project start with id=#id# connect by prior id = owner) -->
+		update project set status=9 WHERE id IN (SELECT id FROM project start with id=#id# connect by prior id = owner) 
+	</statement>
+	<statement id="getProjLib">
+		SELECT lib.id "id",lib.name "name",lib.comments "comment",proj_lib.id "aid" FROM lib JOIN proj_lib ON lib.id=proj_lib.lib_id WHERE proj_lib.proj_id=#proId#
+	</statement>
+	<statement id="delProjLib">
+		delete from proj_lib where id=#id#
+	</statement>
+</group>
+	
+<group tablespace="SatRelateFile">
+	<statement id="queryMonitorTree">
+		select * from table(pkg_query_page_tree.fun_query_page_tree(#ownerId#,#userId#,#isAdmin#))
+	</statement>
+	
+	<statement id="judgeHaveRelate">
+    	SELECT * FROM page_tree_conf WHERE SUPER_ID = #ownerId# and OBJ_ID = #fileId# and status = 0
+	</statement>
+	
+	<statement id="queryUserFile">
+    	SELECT * FROM page_tree_conf WHERE pk_id = #pkId#
+	</statement>
+	
+	<statement id="deleteUserFile">
+    	delete FROM page_tree_conf WHERE pk_id = #pkId#
+	</statement>
+	
+	<!-- 查询文件树结果 -->
+	<statement id="queryFileTree">
+    	SELECT id "id",owner "owner",name "text",isleaf "isleaf" FROM project WHERE status=0 order by id
+	</statement>
+	
+	<statement id="getOwnerIdBySatId">
+		select * from page_tree_conf where obj_id = #satId#
+	</statement>
+	
+	<statement id="queryRelateFile">
+		select * from page_tree_conf where super_id = #ownerId# and status = 0
+	</statement>
+	<statement id="queryRelateFileList">
+	    select a.*,p.name from (
+	           select * from page_tree_conf where super_id = #ownerId# and status = 0) a
+	           ,project p 
+	           where p.id = a.obj_id and p.status = 0
+	</statement>
+	<statement id="addSatFileRelate">
+		insert into page_tree_conf (pk_id,super_id,type,isroot,isleaf,page_name,page_url,open_mode,isalias,obj_id,create_user,status)
+		values(#pk_id#,#super_id#,#type#,#isroot#,#isleaf#,#page_name#,#page_url#,#open_mode#,#isalias#,#obj_id#,#create_user#,0)
+	</statement>
+	<statement id="updateUserFile">
+		update page_tree_conf set page_name = #page_name#,page_url = #page_url#,open_mode = #open_mode#
+		where pk_id = #pk_id#
+	</statement>
+	<statement id="deleteRelate">
+		update page_tree_conf set status = 1 where super_id = #ownerId# and 
+		obj_id = #fileId#
+	</statement>
+	
+	<statement id="queryNodeBySpuerId">
+	    select * from page_tree_conf
+	           where super_id = #super_id# and isroot = #isroot#
+	</statement>
+	
+</group>
+ </template>

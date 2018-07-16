@@ -1,0 +1,55 @@
+/*! 列表页搜索框样式：2015-01-20 yinxy
+**/
+/*  
+----------------------------------*/
+	 .l-panel-search-box {
+				padding:5px;
+				background: #F5F5F5;
+				border: 1px solid #AECAF0;
+				overflow:hidden;
+				display: block;
+		}
+	.l-panel-search-item{
+				width:60px; 
+				height:26px;
+				display:block;
+				float: left;
+	}
+	.l-panel-search-item-btn
+	{			
+				width:200px; 
+				height:26px;
+				display:block;
+				float: left;
+	}
+		.l-panel-search-box-item{
+				 
+				margin-top:2px;
+				width:220px; 
+				height:26px;
+				display:block;
+				float: left;
+   				margin-left: 5px;
+   				vertical-align: middle;
+   				 
+		}
+		.l-panel-search-box-item-label{
+				width:80px; 
+				height:26px;
+				display:block;
+				float: left;
+   				margin-left: 5px;
+		}
+	
+		.l-panel-search-box-item label{
+			 
+			float: left;
+			margin-top:2px;
+			vertical-align: middle;
+		}
+		 
+		.l-panel-search-box-item .l-text-wrapper{float: left;}
+		.l-panel-search-box-item .l-text-wrapper .l-text-field{border:none;} 
+		.l-panel-search-box-item .l-text-field{float: left;  position:static; height:20px;  border: 1px solid #AECAF0;}
+		.l-panel-search-box-item input{float: left;  position:static; border: 1px solid #AECAF0;}
+		.l-panel-search-box-item .l-text-wrapper .l-text-combobox{width: 110px;}

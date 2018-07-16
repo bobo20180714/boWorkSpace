@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<load>
+<!--
+ 	 <item class = "com.xpoplarsoft.framework.parameter.SystemParameterLoad"/> -->
+ 	 <item class = "com.bydz.fltp.connector.config.ConnectorConfigLoad"/>
+ 	 <item class = "com.bydz.fltp.connector.adapter.config.AdapterConfigLoad"/>
+ 	 
+ 	 
+ 	 <item class = "com.jianshi.load.BaseDataLaod"/>
+ 	 
+	 <!--  读取遥测、源码包、非遥测接收配置  读数据库，不读取connector.xml文件 -->
+ 	 <item class = "com.xpoplarsoft.load.ConnectorConfigLoadAlarm"/>
+ 	 
+ 	 <!--  加载connector配置  读数据库，不读取connector.xml文件 -->
+ 	 <item class = "com.xpoplarsoft.load.ConnectorConfigLoadMonitor"/>
+ 	 
+ 	 <!-- 初始化报警结果 -->
+ 	 <item class = "com.xpoplarsoft.alarm.result.AlarmResultLoad"/>
+	 <!--初始化监视进程 -->
+ 	 <item class = "com.xpoplarsoft.monitor.load.MonitorLoad"/>
+</load>

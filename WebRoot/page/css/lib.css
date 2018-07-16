@@ -1,0 +1,40 @@
+@CHARSET "UTF-8";
+body{
+}	
+.main{
+	width:100%;
+	height:100%;
+	position:absolute;
+	bottom:4px;
+}
+.l-icon-x-add {
+	background: url('../../img/add.gif') no-repeat 1px 1px;
+}
+.x-icon{
+	width:36px;
+	height:16px;
+	margin:4px 2px;
+}
+#lib-grid .l-selected .l-grid-row-cell, #lib-grid .l-selected {
+	/* background: #3879D9; */
+	color:#fff;
+}
+#lib-grid .l-selected a{
+	color:#fff;
+}
+#lib-dlg{
+	width:360px;
+	margin:10px auto;
+}
+#lib-dlg td{ 
+	padding:5px;
+} 
+#lib-dlg td:first-child{
+	text-align:right
+}
+#lib-dlg .l-button{
+   width:60px; 
+   float:left; 
+   margin-top:10px;
+   margin-left:10px;
+}

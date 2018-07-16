@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xsi:schemaLocation=" 
+           http://www.springframework.org/schema/beans 
+           http://www.springframework.org/schema/beans/spring-beans-3.0.xsd 
+           http://www.springframework.org/schema/context 
+           http://www.springframework.org/schema/context/spring-context-3.0.xsd
+           http://www.springframework.org/schema/mvc 
+           http://www.springframework.org/schema/mvc/spring-mvc-3.0.xsd" default-autowire="byName">
+     <!-- 解决sprin3mvc返回中文乱码问题 -->
+     <bean class="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter">
+     <property name="messageConverters"> 
+         <list> 
+             <bean class="org.springframework.http.converter.ByteArrayHttpMessageConverter" />
+             <bean class="org.springframework.http.converter.StringHttpMessageConverter"> 
+             <property name="supportedMediaTypes"> 
+                 <list> 
+                     <value>text/plain;charset=UTF-8</value> 
+                 </list> 
+             </property> 
+             </bean> 
+             <bean class="org.springframework.http.converter.ResourceHttpMessageConverter" /> 
+             <bean class="org.springframework.http.converter.xml.SourceHttpMessageConverter" />
+             <bean class="org.springframework.http.converter.xml.XmlAwareFormHttpMessageConverter" />
+             <bean class="org.springframework.http.converter.xml.Jaxb2RootElementHttpMessageConverter" />
+         </list> 
+    </property> 
+    </bean> 
+    
+    <!-- 配置 文件上传的支持 -->  
+    <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">  
+          <property name="maxUploadSize" value="102400000"/>  
+          <property name="resolveLazily" value="true"/>  
+          <property name="maxInMemorySize" value="4096"/>  
+    </bean>
+	<!-- 扫描所有的组件注解 -->
+	<context:component-scan base-package="com.xpoplarsoft" />
+	<context:component-scan base-package="cn.springmvc" />
+	<context:component-scan base-package="com.bydz" />
+	<context:component-scan base-package="com.jianshi" />
+
+
+    <!-- 启动MVC注解-->
+    <mvc:annotation-driven />
+    
+</beans> 

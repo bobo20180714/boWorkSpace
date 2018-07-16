@@ -1,0 +1,763 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<template>
+<group tablespace="orgInfo">
+<!-- 组织机构管理 start -->
+		<statement id="view_organization">
+			select pk_id, org_name, org_code, org_desc, org_adress, parent_id, org_status state, 
+			create_user update_user_id, create_time update_time, 
+			'' regist_corporation, '' org_link_no, '' company_id 
+			from organization where pk_id = #pk_id#
+		</statement>
+		<statement id="add_organization">
+			insert into organization(pk_id,org_code,org_name,
+				org_adress,parent_id,status,create_user,
+				create_time)values(#pk_id#,#org_code#,#org_name#,
+				#org_adress#,#parent_id#,#state#,#update_user_id#
+				,#update_time#)
+		</statement>
+		<statement id="update_organization">
+			update organization set org_code=#org_code#,org_name=#org_name#,
+				org_adress=#org_adress#,create_user=#update_user_id#,
+				create_time=#update_time# where pk_id = #pk_id#
+		</statement>
+		<!--删除组织机构 --> 
+		<statement id="delete_organization">
+			update organization set status = '0' where pk_id = #pk_id#
+		</statement>
+		<!--删除改机构下的所有部门  -->
+		<statement id="delete_child">
+			update organization set status= '0' where parent_id = #parent_id#
+		</statement>
+		<!--对已删除的组织机构 或 部门，组织下的员工归还公司  -->
+		<statement id="delete_staff">
+			update staff_info set org_id = #company_id#
+				where org_id = #pk_id# 
+		</statement>
+		<statement id="check_org_code">
+			select org_code from organization where org_code = #org_code# and status = 1 
+		</statement>
+	<!-- 组织机构管理 end -->
+</group>
+
+<group tablespace="resourcesInfo">
+<!-- 资源信息管理 start -->
+	<statement id="add_resources">
+		insert into resources_info 
+		      (pk_id,res_name,res_type,res_value,res_father,update_time,update_user_code,state,order_num,show_type,res_code) 
+		values(#pk_id#,#res_name#,#res_type#,#res_value#,#res_father#,#update_time#,#update_user_code#,#state#,#order_num#,#show_type#,#res_code#)
+	</statement>
+	<statement id="alter_resources">
+		update resources_info
+		   set res_name = #res_name#,
+		   	 res_code = #res_code#,
+		       res_type = #res_type#,
+		       res_value = #res_value#,
+		       res_father = #res_father#,
+		       update_time = #update_time#,
+		       update_user_code = #update_user_code#,
+		       order_num = #order_num#,
+		       show_type = #show_type#
+		 where pk_id = #pk_id#
+	</statement>
+	<statement id="view_resources">
+		select re.*,b.res_name as res_father_name from resources_info re
+    left join  resources_info b on re.res_father = b.pk_id
+     where re.pk_id = #pk_id# 
+	</statement>
+	<statement id="update_resources_state">
+		update resources_info 
+		   set state = #state# 
+		 where pk_id = #pk_id#
+	</statement>
+	<statement id="delete_resources">
+		delete from resources_info where pk_id = #pk_id#
+	</statement>
+	<statement id="deleter_child">
+		delete from resources_info where res_father = #res_father#
+	</statement>
+	<statement id="delete_role_res">
+		delete from role_menu_relation where menu_id = #res_id#
+	</statement>
+	<statement id="query_resources_list">
+		 select r.*,to_number(r.order_num) ordernum from resources_info r where 
+		 islike(r.res_name,#res_name#) > 0
+		 and
+    	 r.state != 2  order by r.res_father desc,ordernum
+	</statement>
+	
+	<statement id="query_first_resources_byidlist">
+		select * from resources_info where res_father is null
+		 and 
+		 islike(res_name,#res_name#) > 0 and
+		state = case when #state# is null then state else #state# end
+	</statement>
+	<statement id="query_resources_byidlist">
+		select * from resources_info where res_father = #res_code# 
+		 and 
+		 islike(res_name,#res_name#) > 0 and
+		state = case when #state# is null then state else #state# end
+	</statement>
+	
+	<statement id="query_resources_byid">
+		select * from resources_info where res_father = #res_code# and state != 2 order by order_num
+	</statement>
+	
+	<!-- 资源信息管理 end -->
+	
+	<!-- 查看页面资源 -->
+	<statement id="query_page_limit_res">
+		select re.res_value from resources_info re,role_menu_relation 
+			ro,users ue,user_group_role ur
+					where ue.user_id = ur.user_id and ur.role_id = 
+			ro.role_id and ro.menu_id = re.pk_id
+					and re.res_type = '1'
+					and re.state = '1'
+					and ue.user_id=#operator#
+					and re.RES_FATHER = (select re.pk_id 
+						from resources_info 
+			re,role_menu_relation ro,users 
+			ue,user_group_role ur 
+						where ue.user_id = ur.user_id and ur.role_id = 
+			ro.role_id and ro.menu_id = re.pk_id and re.state = '1'
+								and ue.user_id=#operator# 
+			and res_value = #pagePath#)
+	</statement>
+</group>
+
+<group tablespace="roleAndRes">
+	<statement id="add_role_res">
+	    insert into role_menu_relation 
+	    	  (ROLE_MENU_ID,role_id,menu_id)
+	    values(#pk_id#,#role_id#,#res_id#)
+	</statement>
+	<statement id="query_restree_role">
+		select * from resources_info where pk_id in (select menu_id from role_menu_relation where role_id = #role_id#)
+	</statement>
+	<statement id="delete_role_res">
+		delete from role_menu_relation where role_id = #role_id#
+	</statement>
+</group>
+
+<group tablespace="roleInfo">
+<!-- 角色权限管理 start -->
+	<statement id="add_role">
+		insert into role 
+		      (role_id,role_code,role_name,create_time,create_user,status,role_desc) 
+		values(#pk_id#,#role_code#,#role_name#,#update_time#,#update_user_code#,#state#,#role_desc#)
+	</statement>
+	<statement id="alter_role">
+		update role 
+		   set role_name = #role_name#,
+		   create_user = #update_user_code#,
+		   create_time = #update_time#,
+		   role_desc = #role_desc#
+		 where role_code = #role_code#
+	</statement>
+	<statement id="view_role">
+		select role_id pk_id, role_code, role_name, role_desc, status state, create_user update_user_code, create_time update_time 
+		from role where role_code = #role_code# 
+	</statement>
+	<statement id="update_role_state">
+		update role set status = #state# where role_code =#role_code#
+	</statement>
+	<statement id="query_role_list">
+		select role_id pk_id, role_code, role_name, role_desc, status state, create_user update_user_code, create_time update_time
+		from role where role_name like (case when #role_name# is null then role_name else #role_name# end) 
+		and status != 1
+		order by create_time desc
+	</statement>
+	
+	<statement id="query_state_list">
+		select role_id pk_id, role_code, role_name, role_desc, status state, create_user update_user_code, create_time update_time
+		from role where status = #state# order by create_time desc
+	</statement>
+	<statement id="delete_role">
+		delete from role where role_code = #role_code#
+	</statement>
+	<statement id="delete_role_res">
+	    delete from role_menu_relation where role_id in (select role_id from role where role_code = #role_code#)
+	</statement>
+	<statement id="delete_role_user">
+		delete from user_group_role where role_id in (select role_id from role where role_code = #role_code#)
+	</statement>
+	<!-- 角色权限管理  end -->
+</group>
+
+<group tablespace="staffAndUser">
+<statement id="staff_link_user">
+    	update users set staff_id = #staff_id# where pk_id = #pk_id#
+    </statement>
+    
+    <statement id="delete_staff_user">
+    	update users set staff_id = '' where staff_id = #staff_id#
+    </statement>
+    
+    <statement id="query_user_ids">
+    	select pk_id from users where staff_id = #staff_id#
+    </statement>
+</group>
+
+<group tablespace="staffInfo">
+<!-- 员工基本信息管理 start -->
+	<statement id="query_staffs_list">
+		SELECT staff_info.*,c.param_name job_name,s.param_name
+	sex_name,organization.org_name
+	FROM staff_info LEFT JOIN
+	(SELECT param_value.PARAM_CODE,param_value.param_name FROM
+	param_value,param_type WHERE param_value.PARENT_ID = param_type.pk_id
+	AND param_type.type_name = '岗位') c ON staff_info.job_code =
+	c.PARAM_CODE
+	LEFT JOIN
+	(SELECT param_value.PARAM_CODE,param_value.param_name FROM
+	param_value,param_type WHERE param_value.PARENT_ID = param_type.pk_id
+	AND param_type.type_name = '性别') s
+	ON staff_info.sex = s.PARAM_CODE
+	LEFT JOIN
+	(SELECT pk_id,org_name FROM organization
+	UNION
+	SELECT pk_id,COMPANY_NAME org_name FROM company_info
+	)
+	organization ON
+	staff_info.org_id = organization.pk_id
+	where staff_info.staff_code like(case when #staff_code# is null then
+	staff_info.staff_code else #staff_code# end)
+	and staff_info.staff_name like(case when #staff_name# is null then
+	staff_info.staff_name else #staff_name# end)
+	and staff_info.state = '1'
+	ORDER BY staff_info.update_time DESC
+	</statement>
+	<!--新增员工信息 -->
+	<statement id="add_staff_info">
+		insert into staff_info (staff_code, org_id, pk_id, 
+			staff_name, sex, birthday, id_card, job_code, skill_level, 
+			arrive_date,family_adress, mobel_no,email,
+			remark, state, staff_qq,staff_photo, update_user_code,
+			 update_time)
+		values(#staff_code#, #org_id#, #pk_id#,#staff_name#, #sex#, 
+			#birthday#, #id_card#, #job_code#, #skill_level#, 
+			#arrive_date#, #family_adress#, #mobel_no#, 
+			#email#, #remark#, #state#,#staff_qq#, #staff_photo#, #update_user_code#,
+			#update_time#)
+	</statement>
+	<!--修改员工信息 -->
+	<statement id="alert_staff_info">
+	update staff_info 
+	set
+	staff_code = #staff_code# , 
+	org_id = #org_id# , 
+	staff_name = #staff_name# , 
+	sex = #sex# , 
+	birthday = #birthday# , 
+	id_card = #id_card# , 
+	job_code = #job_code# , 
+	skill_level = #skill_level# , 
+	arrive_date = #arrive_date# , 
+	family_adress = #family_adress# , 
+	mobel_no = #mobel_no# , 
+	email = #email# , 
+	remark = #remark# , 
+	staff_qq = #staff_qq# , 
+	staff_photo = #staff_photo# , 
+	update_user_code = #update_user_code# , 
+	update_time = #update_time#
+	where
+	pk_id = #pk_id#
+	</statement>
+	<!--查看员工信息  -->
+	<statement id="view_staff_info">
+		SELECT staff_info.*,c.param_name job_name,s.param_name
+			sex_name,organization.org_name,skill.param_name skill_name
+			FROM staff_info LEFT JOIN
+			(SELECT param_value.PARAM_CODE,param_value.param_name FROM
+			param_value,param_type WHERE param_value.PARENT_ID = param_type.pk_id
+			AND param_type.type_name = '岗位') c ON staff_info.job_code =
+			c.PARAM_CODE
+			LEFT JOIN
+			(SELECT param_value.PARAM_CODE,param_value.param_name FROM
+			param_value,param_type WHERE param_value.PARENT_ID = param_type.pk_id
+			AND param_type.type_name = '性别') s
+			ON staff_info.sex = s.PARAM_CODE
+			LEFT JOIN
+			(SELECT param_value.PARAM_CODE,param_value.param_name FROM
+			param_value,param_type WHERE param_value.PARENT_ID = param_type.pk_id
+			AND param_type.type_name = '技术水平') skill
+			ON staff_info.skill_level = skill.PARAM_CODE
+			LEFT JOIN
+			(SELECT pk_id,org_name FROM organization
+			UNION
+			SELECT pk_id,COMPANY_NAME org_name FROM company_info
+			)
+			organization ON
+			staff_info.org_id = organization.pk_id
+			where staff_info.staff_code = #staff_code# and staff_info.state = '1'
+	</statement>
+	
+	<statement id="delete_staff_info">
+	update staff_info set state='0' where staff_code = #staff_code#
+	</statement>
+	<!--根据组织机构id查询该机构下的所有员工 -->
+	<statement id="idbystaff_info">
+			SELECT staff_info.*,c.param_name job_name,s.param_name
+		sex_name,organization.org_name
+		FROM staff_info LEFT JOIN
+		(SELECT param_value.PARAM_CODE,param_value.param_name FROM
+		param_value,param_type WHERE param_value.PARENT_ID = param_type.pk_id
+		AND param_type.type_name = '岗位') c ON staff_info.job_code =
+		c.PARAM_CODE
+		LEFT JOIN
+		(SELECT param_value.PARAM_CODE,param_value.param_name FROM
+		param_value,param_type WHERE param_value.PARENT_ID = param_type.pk_id
+		AND param_type.type_name = '性别') s
+		ON staff_info.sex = s.PARAM_CODE
+		LEFT JOIN
+		(SELECT pk_id,org_name FROM organization
+		UNION
+		SELECT pk_id,COMPANY_NAME org_name FROM company_info
+		)
+		organization ON
+		staff_info.org_id = organization.pk_id
+		where staff_info.staff_code like(case when #staff_code# is null then
+		staff_info.staff_code else #staff_code# end)
+		and staff_info.staff_name like(case when #staff_name# is null then
+		staff_info.staff_name else #staff_name# end)
+		and staff_info.state = '1'
+		and staff_info.org_id = #org_id#
+		ORDER BY staff_info.update_time DESC
+	</statement>
+	
+	<statement id="org_namebystaff_info">
+		select * from staff_info where org_id in (select pk_id from organization where org_name = #org_name#)
+	</statement>
+	
+	<statement id="codebystaff_info">
+		select * from staff_info where org_id in (select pk_id from organization where org_code = #org_code#)
+	</statement>
+	
+	<statement id="sexbystaff_info">
+		select * from staff_info where sex = #sex#
+	</statement>
+	
+	<statement id="namebystaff_info">
+		select * from staff_info where staff_name = #staff_name#
+	</statement>
+	
+	<statement id="agebystaff_info">
+		select * from staff_info where staff_age between #start# and #end#
+	</statement>
+	
+	<statement id="job_namebystaff_info">
+		select * from staff_info where job_code = #job_code#
+	</statement>
+	
+	<statement id="select_staff_info">
+			update staff_info set org_id = #org_id# where pk_id = #pk_id#
+	</statement>
+	<statement id="remove_staff_info">
+		update staff_info set org_id = #company_id# where pk_id = #pk_id#
+	</statement>
+	<!-- 员工基本信息管理 end -->
+</group>
+
+<group tablespace="userAndRole">
+<statement id="add_user_group_role">
+		insert into user_group_role 
+		      (pk_id,user_id,role_id)
+		values(#pk_id#,#user_id#,#role_id#)
+	</statement>
+	<statement id="query_rolelist_byuserid">
+		select role_id pk_id, role_code, role_name, role_desc, status, create_user, create_time from role where role_id in (select role_id from user_group_role where user_id = #user_id#)
+	</statement>
+	<statement id="delete_user_group_role">
+		delete from user_group_role where user_id = #user_id#
+	</statement>
+</group>
+
+<group tablespace="userInfo">
+<!-- 用户信息管理 start -->
+	<statement id="add_user">
+		insert into users
+		      (user_id,user_account,user_name,password,status,create_user_code,create_time)
+        		values(#pk_id#,#user_account#,#user_name#,#user_pwd#,#state#,#create_user_code#,#create_time#)
+	</statement>
+	<statement id="alter_user">
+		 update users 
+		    set user_name = #user_name#,
+		    user_account = #user_account#,
+		    create_user_code = #update_user_code#,
+		    create_time = #update_time#
+          where user_id = #pk_id#
+	</statement>
+	<statement id="alter_user_pwd">
+		 update users 
+		    set password = #user_pwd#
+          where user_account = #user_account#
+	</statement>
+	<statement id="query_user_list">
+	    select user_id pk_id,user_account,user_name, password user_pwd, status state,create_user_code,create_time
+		from users where user_account like (case when #user_account# is null then user_account else #user_account# end)
+	    and user_name like (case when #user_name# is null then user_name else #user_name# end) order by create_time desc
+	</statement>
+	
+	<statement id="query_linkuser_list">
+	    select user_id pk_id,user_account,user_name, password user_pwd, status state,create_user_code,create_time
+		from users where staff_id = #staff_id# or staff_id = '' and status = '1' and user_account like (case when #user_account# is null then user_account else #user_account# end)
+	    and user_name like (case when #user_name# is null then user_name else #user_name# end) order by create_time desc
+	</statement>
+	
+	<statement id="query_user_list_with_org">
+		SELECT result.* FROM ( 
+ 				SELECT staff_info.ORG_NAME,xu.user_id pk_id, xu.user_account, xu.user_name, xu.password user_pwd,
+				xu.status state, xu.create_user_code, xu.create_time,
+				GROUP_CONCAT(xr.role_name) user_group_role_list 
+			      FROM user xu 			      
+			      LEFT JOIN user_group_role xur
+			      ON xu.user_id=xur.user_id			      
+			      LEFT JOIN role xr
+			      ON xur.role_id=xr.pk_id 			      
+			      JOIN  ( 
+			          SELECT staff_info.USER_ID,staff_info.ORG_NAME			      
+			             FROM ( SELECT PK_ID FROM comp_info WHERE (PARENT_CODE = #org_code# OR org_code =#org_code#) AND state='1' ) org_code_table 
+			             LEFT JOIN 
+			              ( SELECT staff_info.USER_ID,staff_info.ORG_ID,comp_info.ORG_NAME FROM  staff_info ,comp_info WHERE staff_info.ORG_ID=comp_info.PK_ID) staff_info
+			             ON org_code_table.PK_ID = staff_info.ORG_ID
+			      ) staff_info 
+			      ON staff_info.USER_ID = xu.user_id			      
+			      GROUP BY xu.user_id) result #where#
+	</statement>
+	
+	<statement id="query_user_byaccount">
+	    select user_id pk_id,user_account,user_name, password user_pwd,status state,create_user_code,create_time
+		from users where user_account = #user_account#
+	</statement>
+	<statement id="query_user_by_code">
+		select user_id as userId,user_account as userAccount,user_name as userName from users where user_id = #pk_id#
+	</statement>
+	<statement id="query_aut_userlist_by_role">
+		select * from aut_user where aut_user.user_code in
+		(select user_code from aut_user_group_role where role_code=#roleCode#)
+	</statement>
+	<statement id="query_autuser_group_role_list_by_usercode">
+		select * from aut_user where user_code in 
+		(select user_code from aut_user_group_role where user_code in(#userCodes#))
+	</statement>
+	<statement id="update_user_state">
+		update users set status = #state# where user_account =#user_account#
+	</statement>
+	<statement id="query_rolelist_usercode">
+		select b.pk_id,b.role_name from user_group_role a left join role b on a.role_id = b.pk_id 
+ 		 where a.user_id = #user_account#
+	</statement>
+	
+	<statement id="delete_user">
+		delete from users where user_account=#user_account#
+	</statement>
+	<statement id="delete_user_group_role">
+		delete from user_group_role where user_id in (select pk_id from users where user_account=#user_account#)
+	</statement>
+	
+	<statement id="check_account">
+		select user_id pk_id,user_account,user_name,password user_pwd,status state,create_user_code,create_time
+		from users where user_account = #user_account#
+	</statement>	
+	<!-- 用户信息管理 end -->
+</group>
+<group tablespace="login">
+<!-- 登录管理 start -->
+	<statement id="check_user">
+	<![CDATA[
+		select 1 as total from users
+        	where user_account = #user_account# 
+   		      and password = #user_pwd# and status = '0'
+   		        and to_char(sysdate,'yyyy-MM-dd') <= end_time
+	]]>
+	</statement>
+	<statement id="get_user">
+		select user_id,user_account,user_name,org_id from users
+        	where user_account = #user_account# and status = 0
+	</statement>
+	
+	<statement id="check_state">
+		select state from users
+        	where user_account = #user_account#
+	</statement>
+	<!-- 登录管理 end -->
+	
+	<statement id="query_reslist_usercode">
+      	  select RESOURCES_INFO.*,to_number(RESOURCES_INFO.Order_Num) ordernum from 
+               (
+               SELECT ROLE_MENU_RELATION.MENU_ID FROM ROLE_MENU_RELATION 
+               left join USER_GROUP_ROLE user_role on user_role.role_id = ROLE_MENU_RELATION.role_id
+               left join users on user_role.user_id = users.user_id
+                where  users.user_id = #user_account#
+               group by ROLE_MENU_RELATION.MENU_ID
+               )ROLE_MENU_RELATION,RESOURCES_INFO where ROLE_MENU_RELATION.MENU_ID = RESOURCES_INFO.PK_ID
+                
+        ORDER BY res_Father desc,ordernum
+	</statement>
+</group>
+
+<group tablespace = "orgusermapper">
+	<statement id="getUserInfoByAccount">
+		select * from USERS  where user_account = #user_account# and status = 0
+	</statement>
+	<statement id="findOrgTree">
+		select pk_id id,org_name text,o.* from org_info o 
+		where parent_id = case when #parent_id# is null then parent_id else #parent_id# end and state=0
+	</statement>
+
+	<statement id="getFindOrgCount">
+	select count(s.pk_id) from(
+		select pk_id id,org_name text,o.* from org_info o where parent_id=#org_parent_id#
+		)s
+	</statement>
+
+	<statement id="findUserQueryPage">
+		<![CDATA[
+		select m.* from (
+			select t.*,rownum n from(
+				select u1.*,u2.USER_NAME create_user_name,sv.org_name
+				from users u1 
+				left join users u2 on u1.CREATE_USER_CODE = u2.USER_ID
+				left join organization sv on u1.org_id=sv.pk_id 
+				 where u1.org_id = #org_id# and u1.status!=1
+					 and islike(u1.user_account,#login_name#)>0 and islike(u1.user_name,#user_name#)>0
+					 and islike(u1.bumen,#bumen#)>0 and islike(u1.end_time,#end_time#)>0
+					 and 
+					 (
+					 ((u1.end_time) >= case when #end_time_start# is null 
+						 then '0001-01-01 00:00:01' 
+						 else #end_time_start# end
+					 and u1.end_time <= case when #end_time_end# is null 
+						 then '9999-12-31 23:59:59' 
+						 else #end_time_end# end )
+					or
+             		u1.end_time is null	 )
+			 order by u1.create_time desc
+			)t 
+		)m where n>=(#page#-1)*#pagesize#+1 and n<(#page#)*#pagesize#+1
+		]]>
+	</statement>
+	
+	<statement id="getFindUserCount">
+		<![CDATA[
+			select count(user_id) from(
+				select u1.*,u2.USER_NAME create_user_name,sv.org_name,rownum n 
+				from users u1 
+				left join users u2 on u1.CREATE_USER_CODE = u2.USER_ID
+				left join organization sv on u1.org_id=sv.pk_id 
+				where u1.org_id = #org_id# and u1.status!=1
+				 and islike(u1.user_account,#login_name#)>0 and islike(u1.user_name,#user_name#)>0
+				 and islike(u1.bumen,#bumen#)>0 and islike(u1.end_time,#end_time#)>0
+				 and 
+				 (
+				 ((u1.end_time) >= case when #end_time_start# is null 
+					 then '0001-01-01 00:00:01' 
+					 else #end_time_start# end
+				 and u1.end_time <= case when #end_time_end# is null 
+					 then '9999-12-31 23:59:59' 
+					 else #end_time_end# end )
+			     or
+             	 u1.end_time is null	
+             	 )
+			)t
+		]]>
+	</statement>
+	
+	<statement id="userInfoAdd">
+		insert into users(user_id,user_account,user_name,zw,password,org_id,telephone,danwei,bumen,status,create_user_code,create_time,end_time) 
+		values(#user_id#,#login_name#,#user_name#,#zw#,#password#,#org_id#,#telephone#,#danwei#,#bumen#,0,#create_user_code#,#create_time#,#end_time#)
+	</statement>
+	
+	<statement id="userInfoUpdate">
+		update users set user_name=#user_name#,zw=#zw#,telephone=#telephone#,danwei=#danwei#,bumen=#bumen#,end_time=#end_time# where user_id=#user_id#
+	</statement>
+	
+	<statement id="userInfoDelete">
+		update users set status=1 where user_id =#id#
+	</statement>
+	
+	<statement id="setPassword">
+		update users set password=#pas# where user_id=#user_id#
+	</statement>
+	
+	<statement id="statement">
+		update users set org_id=#org_id# where user_id in (#ids#)
+	</statement>
+	
+	<statement id="userOrgchange">
+		update users set org_id=#org_id# where user_id =#id#
+	</statement>
+	
+	<statement id="findUserByLoginName">
+		select * from users where  user_account= #login_name#
+	</statement>
+	
+	<statement id="getUserById">
+		select * from users where  user_id = #user_id#
+	</statement>
+	
+	<statement id="findUserQuery">
+	<![CDATA[
+		select u1.*,u2.USER_NAME create_user_name,sv.org_name
+			from users u1 
+			left join users u2 on u1.CREATE_USER_CODE = u2.USER_ID
+			left join organization sv on u1.org_id=sv.pk_id 
+			 where u1.org_id = #org_id# and u1.status!=1
+				 and islike(u1.user_account,#login_name#)>0 and islike(u1.user_name,#user_name#)>0
+				 and islike(u1.bumen,#bumen#)>0 and islike(u1.end_time,#end_time#)>0
+				 and 
+				 (
+				 ((u1.end_time) >= case when #end_time_start# is null 
+					 then '0001-01-01 00:00:01' 
+					 else #end_time_start# end
+				 and u1.end_time <= case when #end_time_end# is null 
+					 then '9999-12-31 23:59:59' 
+					 else #end_time_end# end )
+				or
+            		u1.end_time is null	 )
+		 order by u1.create_time desc
+	 ]]>
+	</statement>
+	
+	<statement id="orgAdd">
+		insert into organization(pk_id,org_name,org_code,org_desc,parent_id,org_status,create_user,create_time) values(sys_guid(),#org_name#,#org_code#,#org_desc#,#org_id#,0,#create_user#,#create_time#)
+	</statement>
+	
+	<statement id="orgUpdate">
+		update organization set org_name=#org_name#,org_code=#org_code#,org_desc=#org_desc# where pk_id=#org_id#
+	</statement>
+	
+	<statement id="findOrgById">
+	select s.pk_id,s.org_name,s.org_code,s.org_desc from organization s where s.pk_id=#org_id#
+	</statement>
+	
+	<statement id="orgDelete">
+		update organization set org_status=1 where pk_id=#org_id#
+	</statement>
+	
+	<statement id="getCountOfSubOrg">
+		select count(*) from organization where parent_id = #org_id# and org_status = '0'
+	</statement>
+	
+	<statement id="getCountOfUsers">
+		select count(*) from users where org_id = #org_id# and status = '0'
+	</statement>
+	
+	<statement id="getCountOfRoles" > 
+		select count(*) from role where role_id in(
+			select distinct role_id from USER_GROUP_ROLE_VIEW where user_id=#org_id# and role_id is not null
+			)
+	</statement>
+	
+	<statement id="selectLoginName">
+		select * from user_info_view where org_id = #org_id# and USER_ACCOUNT=#login_name# and status!=1
+	</statement>
+	
+	<statement id="userGroupAdd">
+		insert into user_group_role(user_id) values (#user_id#)
+	</statement>
+
+
+	<statement id="getUserId">
+		select user_id from users where user_account = #create_user_code#
+	</statement>
+</group>
+
+	<group tablespace="rolemapper">
+	<statement id ="findRoleQueryPage" >
+		<![CDATA[
+		select r.*,u.user_name create_user_name , rownum n, from role r left join users u	on r.create_user=u.user_id 
+		and islike(r.role_name,#role_name#)>0
+		where n>=(#page#-1)*#pagesize# and n<(#page#)*#pagesize#
+			]]>	
+	</statement>
+	
+	<statement id ="findRoleCount" >
+		select count(ss.role_id) from(
+		select r.*,u.user_name create_user_name from role r left join users u	on r.create_user=u.user_id 
+		and islike(r.role_name,#role_name#)>0
+		where 1=1
+		)ss
+	</statement>
+	
+	<statement id="roleInfoAdd" >
+		insert into role(role_id,role_name,role_desc,role_status,create_user,create_time) values(sys_guid(),#role_name#,#role_desc#,0,#create_user#,TIMESTAMP2STR(sysdate))
+	</statement>
+	
+	<statement id="roleInfoUpdate" >
+		update role set role_name=#role_name#,role_desc=#role_desc# where role_id=#role_id#
+	</statement>
+		
+	<statement id="roleInfoDelete" >
+		update role set role_status=2  where role_id in (#ids#)
+	</statement>
+	
+	<statement id="userGroupRoleDelete">
+		delete from user_group_role where user_id=#org_id# and role_id=#id#
+	</statement>
+	
+	<statement id="userGroupRoleAdd" >
+		insert into user_group_role(pk_id,role_id,user_id)
+			values (sys_guid(),#id#,#org_id#) 
+	</statement>
+	
+	<statement id="findRoleByRoleName" >
+		select * from role where role_name=#role_name# 
+	</statement>
+	
+	<statement id="findRoleByRoleName">
+		select * from role where role_name=#role_name# 
+	</statement>
+	
+	<statement id="findNoRole">
+		select * from role where status=0 
+		and role_id not in (select distinct role_id from USER_GROUP_ROLE where user_id=#org_id#  and role_id is not null) 
+	</statement>
+	
+	<statement id="getFindNoRoleCount">
+		select count(ss.role_id) from(
+			select * from role where status=0
+			and role_id not in (select distinct role_id from USER_GROUP_ROLE where user_id=#org_id#  and role_id is not null)
+		)ss 
+	</statement>
+	
+	<statement id="findHasRole">
+		select * from role where status=0
+		and role_id in (select distinct role_id from USER_GROUP_ROLE where user_id=#org_id# and role_id is not null) 
+	</statement>
+	
+	<statement id="getFindHasRoleCount">
+		select count(ss.role_id) from(
+			select * from role where status=0
+			and role_id in (select distinct role_id from USER_GROUP_ROLE where user_id=#org_id# and role_id is not null) 
+		)ss 
+	</statement>
+	
+	</group>
+	
+	<group tablespace="grantData">
+		<statement id="grantRoleResourceAdd">
+			insert into GRANT_ROLE_RESOURCE(grant_id,sys_resource_id,ug_id,grant_manage_type,grant_type,grant_status,create_user,create_time,end_time) 
+			values(SEQ_GRANT_ROLE_RESOURCE.nextval,#sys_resource_id#,#ug_id#,#grant_manage_type#,#grant_type#,0,
+			#create_user#,to_char(sysdate, 'yyyy-mm-dd hh24:mm:ss'),#end_time#)
+		</statement>
+		<statement id="satList">
+			select * from satellite where status = 0 and  
+			sat_id not in (select SYS_RESOURCE_ID from GRANT_ROLE_RESOURCE where ug_id = #ug_id#) 
+			order by create_time desc
+		</statement>
+		<statement id="queryAlreadyGrantSat">
+			select sat.sat_name,sat.sat_code,sat.sat_id from GRANT_ROLE_RESOURCE grr,satellite sat
+			where grr.sys_resource_id = sat.sat_id and grr.grant_type = #grant_type#
+			and grr.ug_id = #ug_id#
+			order by grr.create_time
+		</statement>
+		<statement id="grantRoleResourceDelete">
+			delete from grant_role_resource where ug_id = #ug_id# 
+				and sys_resource_id = #sys_resource_id#
+				and grant_type = #grant_type#
+		</statement>
+	</group>
+	
+	
+</template>

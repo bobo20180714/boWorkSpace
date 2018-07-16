@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<adapter-config>
+	<!-- 订单发布端口 -->
+	<adapter name="orderAdapter" startup="true" classImpl="com.bydz.fltp.connector.adapter.impl.UDPAdapterImpl">
+		<param name="address" value="225.20.0.1"/>
+		<param name="port" value="10001"/>
+	</adapter>
+	<!-- 报警规则发布端口 -->
+	<adapter name="rule_adapter" startup="true" classImpl="com.bydz.fltp.connector.adapter.impl.UDPAdapterImpl">
+		<param name="address" value="225.0.0.1"/>
+		<param name="port" value="50021"/>
+	</adapter>
+</adapter-config>

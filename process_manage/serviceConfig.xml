@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<service-config>
+	
+	<executers>
+		<!-- 进程注册业务处理 -->
+		<!-- <executer code="joinin" isThread="false" class="com.xpoplarsoft.monitor.process.ProcessJoinExecuter"/> -->
+		
+		<!-- 进程心跳处理 -->
+		<executer code="HEART" isThread="false" class="com.xpoplarsoft.monitor.process.ProcessHeartExecuter"/>
+		
+	</executers>
+</service-config>

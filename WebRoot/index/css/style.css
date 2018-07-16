@@ -1,0 +1,37 @@
+@charset "utf-8";/* CSS Document */
+html{height:100%;}
+body{margin:0;padding:0;font-family:"微软雅黑";font-size:12px;color:#333; min-width:1600px; height:100%;background-color:#125486;min-height:500px;_height:500px;position:relative;}
+*{margin:0;padding:0;border:0;list-style:none;}
+.wrap{min-height:100%;background:url(../images/bg.png) no-repeat top center;}
+/*top*/
+.top{width:100%;height:116px;background:url(../images/bg1.png) no-repeat;/* min-width:1400px; */}
+.top .topContentL{width:30%;height:116px;float:left;/* min-width: 400px; */}
+.top .topContentL img{/* width:399px; height:116px;*/display:block;}
+.top .topContentR .topContentRT{width:70%;height:47px;/* background:url(../images/bg_3.png) no-repeat top left; */float:left;padding-top:16px;}
+.top .topContentR .topContentRT .quit{width:30px;height:20px;line-height:20px;padding-left:25px;background:url(../images/quit.png) no-repeat;float:right;}
+.top .topContentR .topContentRT .password{width:60px;height:20px;line-height:20px;padding-left:25px;background:url(../images/password.png) no-repeat;float:right;color:#fff;}
+.top .topContentR .topContentRT .admin{width:70px;height:20px;line-height:20px;padding-left:25px;background:url(../images/admin.png) no-repeat;float:right;color:#fff;}
+.top .topContentR .topContentRT .time{width:130px;height:20px;line-height:20px;padding-left:25px;background:url(../images/time.png) no-repeat;float:right;color:#fff;}
+.top .topContentR .topContentRT a:link,.top .topContentR .topContentRT a:visited{color:#fff;text-decoration:none;}
+.top .topContentR .topContentRT a:hover{text-decoration:underline;}
+.top .topContentR .topContentRB img{float:left;display:block;padding-top:4px;}
+.top .topContentR .topContentRB .last{margin-right:23px;}
+.top .topContentR .topContentRB p{float:left;color:#fff;height:50px;line-height:50px;font-size:14px;width:138px;/* text-align:center; */}
+.top .topContentR .topContentRB p a:link,.top .topContentR .topContentRB p a:visited{color:#fff;text-decoration:none;
+}
+.top .topContentR .topContentRB p a:hover{text-decoration:underline;}
+.top .topContentR .topContentRB .select{background:url(../images/bg_2.png) no-repeat bottom;}
+/*center*/
+.center{width:1100px;height:410px;position:absolute;left:24%;rigth:50%;top:27%;}
+.center .one{width:155px;height:180px;float:left;margin-right:56px;}
+.center .one p{text-align:center;padding-top:20px;font-size:18px;}
+.center .two{width:155px;height:180px;float:left;margin-right:56px;}
+.center .two p{text-align:center;padding-top:20px;font-size:18px;}
+.center .three{width:155px;height:180px;float:left;margin-right:56px;}
+.center .three p{text-align:center;padding-top:20px;font-size:18px;}
+.center .four{width:155px;height:180px;float:left;margin-right:57px;}
+.center .four p{text-align:center;padding-top:20px;font-size:18px;}
+.center .five{width:155px;height:180px;float:left;}
+.center .five p{text-align:center;padding-top:20px;font-size:18px;}
+.center p a:link,.center p a:visited{color:#fff;text-decoration:none;}
+.center p a:hover{color:#9dc9ff;}

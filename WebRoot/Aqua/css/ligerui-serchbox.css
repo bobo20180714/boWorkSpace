@@ -1,0 +1,11 @@
+/*
+	search-box
+*/
+.l-panel-search-box {
+    padding: 5px;
+    background: #0D4A79;
+    border: 1px solid #145A94;
+    overflow: hidden;
+    display: block;
+    color: #C0CCD0;
+}

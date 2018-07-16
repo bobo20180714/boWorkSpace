@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<connector-config>
+	<connector name="alarm_rule" startup="true" classImpl="com.bydz.fltp.connector.udp.UDPServer">
+		<param name="broadcast-address" value="225.0.0.1:50021"/>
+		<param name="revicedata-length" value="50000"/>
+		<param name="executorPoolSize" value="10"/>
+		<param name="dispatcherClassImpl" value="com.xpoplarsoft.alarm.dispatcher.AlarmRuleDispatcherImpl"/>
+	</connector>
+	<connector name="alarm_connector" startup="true" classImpl="com.bydz.fltp.connector.udp.UDPServer">
+		<param name="broadcast-address" value="225.20.0.1:10001"/>
+		<param name="revicedata-length" value="50000"/>
+		<param name="executorPoolSize" value="2"/>
+		<param name="dispatcherClassImpl" value="com.xpoplarsoft.process.dispatcher.ProcessMessageDispatcher"/>
+	</connector>
+</connector-config>

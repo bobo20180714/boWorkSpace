@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<load>
+	 <item class = "com.xpoplarsoft.framework.init.ClassInstanceLoad"/>
+	 
+	 <!--  读取遥测、源码包、非遥测接收配置  读数据库，不读取connector.xml文件 -->
+ 	 <item class = "com.xpoplarsoft.load.ConnectorConfigLoadAlarm" />
+ 	 
+	 <item class = "com.xpoplarsoft.alarm.result.AlarmResultLoad"/>
+</load>

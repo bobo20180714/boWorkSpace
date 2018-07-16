@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<template>
+<group tablespace="processManager">
+    <statement id="process_list">
+		select * from PROCESS_INFO where 1 = 1
+	    and islike(PROCESS_CODE,#process_code#) > 0
+	    and islike(PROCESS_NAME,#process_name#) > 0
+	    and process_info_state = 2
+		order by CREATE_TIME desc
+	</statement>
+    <statement id="queryProcessByType">
+		select * from PROCESS_INFO where PROCESS_TYPE = #process_type#
+		 and process_info_state != 9
+		order by CREATE_TIME desc
+	</statement>
+    <statement id="add">
+		insert into process_info (pk_id,process_code,process_name,process_type,computer_ip,
+			startup_type,startup_path,startup_param,agency_process_code,is_main_process,
+			main_process_code,process_info_state,create_time,sat_mid) 
+		values(SEQ_EDQ.nextval,#process_code#,#process_name#,#process_type#,#computer_ip#,
+			#startup_type#,#startup_path#,#startup_param#,#agency_process_code#,#is_main_process#,
+			#main_process_code#,1,to_char(sysdate, 'yyyy-mm-dd hh24:mi:ss'),#sat_mid#)
+	</statement>
+    <statement id="deleteProcess">
+		delete from process_info where process_code = #processCode# 
+	</statement>
+    <statement id="updateProcess">
+		update  process_info set process_code = #process_code# ,process_name = #process_name#,process_type = #process_type#,
+		computer_ip = #computer_ip# ,startup_type = #startup_type#,startup_path = #startup_path#,
+		startup_param = #startup_param# ,agency_process_code = #agency_process_code#,is_main_process = #is_main_process#,
+		main_process_code = #main_process_code# ,sat_mid = #sat_mid#
+		where pk_id = #pk_id#
+	</statement>
+    <statement id="updateProcessState">
+		update  process_info set process_info_state = #processInfoState# where process_code = #processCode#
+	</statement>
+    <statement id="viewProcess">
+     	select p.*,s.sat_id,s.mid,s.sat_code,fp.process_name f_process_name from process_info p 
+        left join (select * from process_info where process_info_state = 2) fp on fp.process_code = p.agency_process_code
+        left join satellite s on p.sat_mid = s.sat_id
+     		where  p.process_code = #process_code#
+	</statement>
+    <statement id="judgeIpExit">
+     	select * from process_info where computer_ip = #computerIp#
+	</statement>
+    <statement id="getMainProcess">
+		select * from process_info where process_type = #processType# and process_info_state = 2 and IS_MAIN_PROCESS = 0
+	</statement>
+    <statement id="getMainProcess_bySat">
+		select * from process_info where process_type = #processType# 
+		and SAT_MID = #satMid#
+		and process_info_state = 2 and IS_MAIN_PROCESS = 0
+	</statement>
+    <statement id="queryStartProcessInfo">
+		select * from process_info where  process_info_state = 2
+	</statement>
+    <statement id="queryProcessByTypeAndMain">
+		select * from process_info where  process_type = #processType# 
+		 and is_main_process = #isMain#
+	</statement>
+</group>	
+
+<group tablespace="satInfo">
+    <statement id="getSatInfoByMid">
+		select * from SATELLITE where mid= #satMid# and status = 0
+	</statement>
+</group>	
+
+ </template>

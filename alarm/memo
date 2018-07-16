@@ -1,0 +1,2 @@
+源文件编码格式修改为UTF-8
+AlarmAnalyse、AlarmCompiler等类修改为全局唯一类

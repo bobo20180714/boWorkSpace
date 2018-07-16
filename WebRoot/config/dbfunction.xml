@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<function-conf>
+	<package name=""> 
+    	<!-- 获取系统时间,例子:SYSDATE(),执行逻辑format(yyyy-MM-dd HH:mm:ss.SSS).format(new Date())) 
+    	<function name="SYSDATE" classImpl="com.xpoplarsoft.framework.db.function.impl.SYSDATE"/> -->
+    </package>
+</function-conf>

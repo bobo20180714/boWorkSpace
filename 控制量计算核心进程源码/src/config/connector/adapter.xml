@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<adapter-config>
+	<!-- 卫星原始报文发送 -->
+	<adapter name="compute_adapter" startup="true" classImpl="com.bydz.fltp.connector.adapter.impl.UDPAdapterImpl">
+		<param name="address" value="225.20.0.1"/>
+		<param name="port" value="10001"/>
+	</adapter>
+</adapter-config>

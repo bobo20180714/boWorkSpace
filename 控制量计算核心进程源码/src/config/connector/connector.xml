@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<connector-config>
+	<connector name="compute_connector" startup="true" classImpl="com.bydz.fltp.connector.udp.UDPServer">
+		<param name="broadcast-address" value="225.20.0.1:10001"/>
+		<param name="revicedata-length" value="50000"/>
+		<param name="executorPoolSize" value="20"/>
+		<param name="dispatcherClassImpl" value="com.xpoplarsoft.process.dispatcher.ProcessMessageDispatcher"/>
+	</connector>
+</connector-config>

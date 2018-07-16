@@ -1,0 +1,158 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title></title>
+<link href="../Aqua/css/ligerui-all.css" rel="stylesheet"/>
+<style type="text/css">
+	body{
+		padding:10px;
+	}
+	form{
+		width:360px;
+		margin:0 auto;
+	}
+    form td{ 
+    	padding:5px;
+    } 
+    td:first-child{
+    	text-align:right
+    }
+    .l-button{
+	    width:60px; 
+	    float:left; 
+	    margin-top:10px;
+	    margin-left:10px;
+    }
+    .l-verify-tip{ 
+	    left:230px; 
+	    top:120px;
+    }
+    .l-star {
+		    color: Red;    float: left;
+		}
+</style>
+</head>
+<body>
+<form enctype="multipart/form-data" method="post">
+	<table>
+		<tr>
+			<td>图元名称：</td>
+			<td><input name="name" type="text"></td>
+			<td align="left" style="padding-left: 0px;" ><span class="l-star">*</span></td>
+		</tr>
+		<tr>
+			<td>图标：</td>
+			<td><input name="icon1" class="liger-popupedit"></td>
+			<td align="left" style="padding-left: 0px;" ><span class="l-star">*</span></td>
+		</tr>
+		<tr>
+			<td>JS包：</td>
+			<td><input name="js" class="liger-popupedit"></td>
+			<td align="left" style="padding-left: 0px;" ><span class="l-star">*</span></td>
+		</tr>
+		<tr>
+			<td>说明：</td>
+			<td><textarea name="comment" cols="40" rows="4" class="l-textarea"></textarea></td>
+		</tr>
+	</table>
+	<input type="file" id="file1" name="img" accept="image/*" style="display:none"/>
+	<input type="file" id="file2" name="jar" style="display:none"/>
+	<!-- <input type="button" value="确定" class="l-button" style="margin-left:110px;"/> 
+	<input type="button" value="取消" class="l-button"/>	 -->
+</form>
+<script src="../js/jquery-1.10.2.min.js" type="text/javascript"></script>
+<script src="../ligerUI/js/core/base.js" type="text/javascript"></script> 
+<script src="../ligerUI/js/plugins/ligerDialog.js" type="text/javascript"></script>
+<script src="../ligerUI/js/plugins/ligerButton.js" type="text/javascript"></script>
+<script src="../ligerUI/js/plugins/ligerTextBox.js" type="text/javascript"></script>
+<script src="../ligerUI/js/plugins/ligerPopupEdit.js" type="text/javascript"></script>
+<script src="../js/util.js" type="text/javascript"></script>
+<script src="../lib/Alert.js" type="text/javascript"></script>
+<script type="text/javascript">	
+	var isEdit=getUrlParam('isEdit')*1;
+	var data=parent._dlgInfo;
+	$('input[name=name]').ligerTextBox({width:260});
+	$('.liger-popupedit[name=icon1]').ligerPopupEdit({
+		width:260,
+		readOnly:true,
+		onButtonClick:function(){
+			$('#file1').click().change(function(){
+				$('input[name=icon1]').val($(this).val());
+			});
+		}
+	});
+	$('.liger-popupedit[name=js]').ligerPopupEdit({
+		width:260,
+		readOnly:true,
+		onButtonClick:function(){
+			$('#file2').click().change(function(){
+				$('input[name=js]').val($(this).val());
+			});
+		}
+	});
+	if(isEdit){		
+		$('input[name=name]').val(data.name);
+		$('input[name=icon1]').val('原图');
+		$('input[name=js]').val('原JAR包');
+		$('[name=comment]').val(data.comment);
+	}
+	$('input[value=确定]').click(function(){
+		var name=$('[name=name]').val().trim();
+		if(name==''){
+			$.ligerDialog.warn('图元名称不能空！');
+			return;
+		}
+		if(isEdit==0){
+			if($('#file1')[0].files.length==0){
+				$.ligerDialog.warn('图标不能空！');
+				return;
+			}
+			if($('#file2')[0].files.length==0){
+				$.ligerDialog.warn('JS包不能空！');
+				return;
+			}
+			if(!/.jar$/.test($('#file2')[0].files[0].name)){
+				$.ligerDialog.warn('JS包不是JAR文件！');
+				return;
+			}
+		}		
+		var form={
+				name:name,
+				comment:$('[name=comment]').val().trim(),
+				state:1
+			};
+		var formData=new FormData($('form')[0]);
+		if(isEdit) {
+			formData.append('id',data.id);
+			formData.append('icon',data.icon);
+		}
+		else{
+			formData.append('icon',uuid());
+		}
+	     $.ajax({  
+	          url: isEdit?'../rest/dynamic/editDynamic':'../rest/dynamic/addDynamic',  
+	          type: 'POST',  
+	          data: formData,  
+	          processData: false,
+	          contentType:false,
+	          success: function (ret) {
+	        	  if(ret=="F"){
+	        		  $.ligerDialog.error('添加图元失败！');
+	        	  }   
+	        	  else{	        		  
+	        		  parent.dynamicGrid.loadServerData({
+	  					  url:'rest/dynamic/getDynamic'
+	  				  });
+	        		  parent._opener.close();
+	        	  }
+	          }
+	     });
+	});
+	$('input[value=取消]').click(function(){
+		parent._opener.close();
+	});
+</script>
+<script src="js/adddynamic-dialog.js" type="text/javascript"></script>
+</body>
+</html>

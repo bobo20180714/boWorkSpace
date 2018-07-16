@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<service-config>
+	
+	<executers>
+		<!-- 特需计算订单业务处理  -->
+		<executer code="compute" isThread="true" class="com.xpoplarsoft.compute.OrderServiceExecute"/>
+		<!-- 心跳报文后续处理默认类 -->
+		<executer code="HEART" isThread="false" class="com.xpoplarsoft.service.executer.HeartbeatExecuter"/>
+		
+	</executers>
+</service-config>

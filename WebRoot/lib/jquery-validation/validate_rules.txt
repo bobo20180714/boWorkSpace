@@ -1,0 +1,42 @@
+ 		required: "该字段不能为空",
+		remote: "请修正该字段",
+		email: "请输入正确格式的电子邮件",
+		url: "请输入合法的网址",
+		date: "请输入合法的日期",
+		dateISO: "请输入合法的日期 (ISO).",
+		number: "请输入合法的数字",
+		digits: "只能输入整数",
+		creditcard: "请输入合法的信用卡号",
+		equalTo: "请再次输入相同的值",
+		accept: "请输入拥有合法后缀名的字符串",
+		maxlength: jQuery.validator.format("请输入一个长度最多是 {0} 的字符串"),
+		minlength: jQuery.validator.format("请输入一个长度最少是 {0} 的字符串"),
+		rangelength: jQuery.validator.format("请输入一个长度介于 {0} 和 {1} 之间的字符串"),
+		range: jQuery.validator.format("请输入一个介于 {0} 和 {1} 之间的值"),
+		max: jQuery.validator.format("请输入一个最大为 {0} 的值"),
+		min: jQuery.validator.format("请输入一个最小为 {0} 的值"),
+		
+		identityCard:"请输入正确格式的身份证号15位或18位",
+	    mobileNumber:"请输入正确的手机号码",
+	 	tel:"请输入正确的座机号码",
+	 	telephone:"请输入正确的座机号码或手机号码",
+	  	price:"请输入正确的金额格式*.XX最多两位小数",
+ 		justNumber:"请输入正整数的数字",
+	 	specialText:"该字段只允许输入汉字、英文字母、数字以及下划线",
+	 	cnText:"该字段不能输入汉字",
+	 	identifierNO:"该字段只允许输入英文字母、数字以及下划线",
+ 		positivePrice:"请输入大于零的金额数字",
+	 
+	  
+	  验证使用方法：
+	  框架新增一种验证方式，可从后台配置字段验证规则。
+	  在form页加载完成后，调用validateInit(ruleId,form1)方法，为表单字段加载验证规则。
+	 validateInit(ruleId,form1)方法通过ajax方式，获取后台配置的表单字段验证规则。
+	  其中 ：ruleId为字符串类型，区分表单验证规则；
+	 form1为ligerForm对象。验证规则将加载到该表单中的字段中。
+	  服务端配置验证规则，才可以通过该方法获取到。获取到的验证规则格式如下：
+	  [{field_name:"mobile",validate:{required:true,userName:true}}]，其中field_name指表单中字段名称，validate为验证规则。
+	 
+	 
+	 
+	  

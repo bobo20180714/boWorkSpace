@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<delegate-conf>
+	<!-- subsystem：子系统编号 serviceid：业务服务编号 asyn：组件是否可以异步执行 invokemethod:是否支持方法直接调用 -->
+	<delegate subsystem="system">
+		<service id="test">
+			<component id="test" asyn="true" invokemethod="true"/>
+		</service>
+		<service id="validateRule">
+			<component id="validateRule" />
+		</service>
+	</delegate>
+</delegate-conf>

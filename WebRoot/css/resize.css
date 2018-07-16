@@ -1,0 +1,128 @@
+@CHARSET "UTF-8";
+.resize-unit {
+    position: absolute;
+    cursor:move;
+}
+.resize-unit img{
+	width:100%;
+    height:100%;
+}
+[class^="resize-handle-"]{
+    position: absolute;
+    display: block;
+    width: 6px;
+    height: 6px;
+    background: #0f0;
+    border:1px solid #000;
+    z-index:999;    
+}
+.resize-handle-nw {
+    top: -3px;
+    left: -3px;
+    cursor: nw-resize;
+}
+.resize-handle-sw {
+    bottom: -3px;
+    left: -3px;
+    cursor: sw-resize;
+}
+.resize-handle-ne {
+    top: -3px;
+    right: -3px;
+    cursor: ne-resize;
+}
+.resize-handle-se {
+    bottom: -3px;
+    right: -3px;
+    cursor: se-resize;
+}
+.resize-handle-n {
+    top: -3px;
+    left: 50%;
+    margin-left:-3px;
+    cursor: n-resize;
+}
+.resize-handle-s {
+    bottom: -3px;
+    left: 50%;
+    margin-left:-3px;
+    cursor: n-resize;
+}
+.resize-handle-e{
+	top:50%;
+	right:-3px;
+	margin-top:-3px;
+	cursor: e-resize;
+}
+.resize-handle-w{
+	top:50%;
+	left:-3px;
+	margin-top:-3px;
+	cursor: e-resize;
+}
+.resize-properties{
+	width:220px;
+	margin:4px;
+}
+.resize-properties td{
+	padding:2px;
+}
+.l-icon-x-ok{
+	background:url('../img/ok.png') no-repeat center;
+}
+.l-icon-x-tree-del{
+	background:url('../img/del.ico') no-repeat center;
+}
+.l-icon-x-properties{
+	width:14px;
+	height:14px;
+	/* background:url('../img/properties.gif') no-repeat center; */
+	background:url('../img/icon-manager.png') no-repeat center;
+}
+.l-icon-x-rotate1{
+	background:url('../img/r45_2.png') no-repeat center;
+}
+.l-icon-x-rotate2{
+	background:url('../img/r45_1.png') no-repeat center;
+}
+.l-icon-x-rotate3{
+	background:url('../img/r90_2.png') no-repeat center;
+}
+.l-icon-x-rotate4{
+	background:url('../img/r90_1.png') no-repeat center;
+}
+.l-icon-x-background{
+	background:url('../img/background.png') no-repeat center;
+}
+.l-icon-x-page{
+	width:14px;
+	height:14px;
+	background:url('../img/page.png') no-repeat center;
+}
+.l-icon-x-copy{
+	background:url('../img/copy.ico') no-repeat center;
+}
+.l-icon-x-paste{
+	background:url('../img/paste.ico') no-repeat;
+}
+.resize-layout{
+	position:relative;
+	width:650px;
+	height:100%;
+}
+.resize-layout>div{
+	position:absolute;
+	top:0;
+	bottom:0;
+}
+.resize-layout [name=title]{
+	font-weight:bold;
+	padding-left:4px;
+	border-bottom:1px solid #CCC;	
+}
+.resize-layout>div>div{
+	margin:5px 0;
+}
+.l-dialog-content{
+	overflow: hidden;
+}

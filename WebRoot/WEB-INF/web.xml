@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://java.sun.com/xml/ns/j2ee" xmlns:javaee="http://java.sun.com/xml/ns/javaee" xmlns:web="http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd" version="2.4">
+  <servlet>
+    <servlet-name>spring3</servlet-name>
+	<!-- <servlet-class>com.xpoplarsoft.framework.servlet.WebDispatcher</servlet-class> -->
+    <servlet-class>cn.servlet.SingleWebDispatcher</servlet-class>
+    <init-param>
+      <param-name>contextConfigLocation</param-name>
+      <param-value>/config/spring3.xml</param-value>
+    </init-param>
+    <load-on-startup>2</load-on-startup>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>spring3</servlet-name>
+    <url-pattern>/rest/*</url-pattern>
+  </servlet-mapping>
+  <welcome-file-list>
+    <welcome-file>login/login.jsp</welcome-file>
+  </welcome-file-list>
+  <session-config>
+    <session-timeout>-1</session-timeout>
+  </session-config>
+  <filter>
+    <filter-name>Encoding</filter-name>
+    <filter-class>com.xpoplarsoft.framework.filter.EncodingFilter</filter-class>
+    <init-param>
+      <param-name>encoding</param-name>
+      <param-value>UTF-8</param-value>
+    </init-param>
+  </filter>
+  <filter-mapping>
+    <filter-name>Encoding</filter-name>
+    <url-pattern>/*</url-pattern>
+  </filter-mapping>
+<filter>
+    <filter-name>LoginFilter</filter-name>
+    <filter-class>com.xpoplarsoft.framework.filter.LoginFilter</filter-class>
+    <init-param>
+      <param-name>loginPage</param-name>
+      <param-value>login/login.jsp</param-value>
+    </init-param>
+    <init-param>
+      <param-name>excludeAction</param-name>
+      <param-value>index.html,rest/poplarLogin/loginUser</param-value>
+    </init-param>
+    <init-param>
+      <param-name>filterAction</param-name>
+      <param-value>.html,.jsp,/rest/</param-value>
+    </init-param>
+  </filter>
+   <filter-mapping>
+    <filter-name>LoginFilter</filter-name>
+    <url-pattern>/*</url-pattern>
+  </filter-mapping>
+  <error-page>
+    <error-code>404</error-code>
+    <location>/error.html</location>
+  </error-page>
+  <error-page>
+    <error-code>500</error-code>
+    <location>/error.html</location>
+  </error-page>
+</web-app>

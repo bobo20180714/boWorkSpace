@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<param-conf>
+<group tablespace="default">
+    <!-- 
+    <param name="isWriteSysLog" value="true"/>  -->
+    
+	<!-- 是否采用数据库集群机制  -->
+    <param name="DBCluster" value="false"/>
+    
+    <!-- 是否记录系统访问日志  -->
+    <param name="isWriteSysLog" value="true"/>
+    
+    <!-- 是否记录数据库操作日志  -->
+    <param name="isWriteDBLog" value="false"/>
+        
+    <!-- 系统实例编号支持多路部署 -->
+    <param name="instanceid" value="01"/>
+    
+    <!-- 上传文件服务器路径 -->
+    <param name="uploadFilePath" value="/fileupload/"/>
+    
+    <!-- 扩展计算jar包存放路径 -->
+    <param name="jarPath" value="/lib/"/>
+    
+    <!-- 接口登陆用户实现类,权限组件需要实现 -->
+    <param name="loginUserClassImpl" value="com.xpoplarsoft.framework.interfaces.impl.LoginUserImpl"/>
+    
+    <!-- 数据库SQL实现类 -->
+    <param name="dbSQLClassImpl" value="com.xpoplarsoft.framework.db.impl.SQLImpl"/>
+    
+    <!-- 数据库缓冲实现类 -->
+    <param name="dbCacheClassImpl" value="com.xpoplarsoft.framework.db.cache.impl.DBCacheImpl"/>
+    
+    <!-- 系统日志实现类 -->
+    <param name="sysLogClassImpl" value="com.xpoplarsoft.framework.log.impl.LoggerImpl"/>
+    
+    <!-- 业务流水号实现类 -->
+    <param name="flowNoClassImpl" value="com.xpoplarsoft.framework.flowno.impl.FlowNoImpl"/>
+    
+    <!-- 业务流水号实现类 -->
+    <param name="computeLogClass" value="com.xpoplarsoft.compute.log.ComputeLog"/>
+</group>    
+</param-conf>

@@ -1,0 +1,127 @@
+/* --------------
+   *   tree  *
+* ------------ */
+.l-tree-body
+{
+    height: 100%; overflow:auto; display:block;
+    background:#19649d url('../images/tree/tree-bg.png') no-repeat;
+    background-position: 0px 90%;
+} 
+.l-tree
+{
+    margin:0; padding:0; list-style:none; overflow:hidden; position:relative; display:block;
+} 
+.l-tree-loading
+{
+    position: absolute;z-index: 91000;  top:40%; left:50%; overflow:hidden;
+    background:url('../images/tree/loading.gif') no-repeat 0px 0px;width:24px; height:24px; 
+    display:none;
+}
+.l-tree a,.l-tree span{color: #fcfcfc;height: 30px;line-height: 30px; text-decoration:none;}
+.l-tree .l-body span
+{
+    display: block;
+    float: left;_display: inherit;_float:none;*display: inherit;*float:none;padding-left: 5px;
+}
+.l-tree ul,.l-tree li{list-style:none; margin:0; padding:0;}
+.l-tree li 
+{
+	clear: both;display: block;cursor: pointer;
+}
+.l-tree li .l-body
+{ 
+	height:42px;line-height: 42px; overflow:hidden;padding-left: 5px;
+}
+.l-tree li .l-body-bg
+{ 
+	background:url('../images/tree/tree-span-line.gif') no-repeat;
+	background-size:100% 2px;
+	background-position: 0px 39px;
+}
+.l-tree li .l-body-bg-non{background:none; }
+
+.l-tree .l-box
+{
+    width:22px; height:22px; overflow:hidden; float:left; background:url('../images/tree/treeNew.gif');background-position:-22px -40px;
+}
+.l-tree li .l-body .l-box-loading
+{
+     background:url('../images/tree/nodeloading4.gif') no-repeat 5px 5px; cursor:default;
+}
+.l-tree-noline .l-box
+{
+    background-image:url('../images/tree/tree-noline1.gif');
+}
+
+.l-tree .l-span-line{height:2px;  display: none;}
+.l-tree .l-span-line-show
+{ 
+	display: none;
+	height:2px; 
+	background:url('../images/tree/tree-span-line.gif') no-repeat;
+	background-size:100% 2px;
+}
+.l-tree .l-span-line-hide
+{
+    height:2px; background:background:#19649d;
+    display: none;
+}
+.l-tree .l-last-span-line{
+	height:0px; 
+	background:url('../images/tree/tree-span-line.gif') no-repeat; 
+	display: none;
+}
+
+.l-tree .l-expandable-close{background-position:0px -38px;}
+.l-tree .l-first .l-expandable-close{background-position:0px -38px;}
+.l-tree .l-last .l-expandable-close{ background-position:0px -38px;}
+.l-tree .l-onlychild  .l-expandable-close{background-position:0px -38px;}
+
+.l-tree .l-expandable-open{background-position:0px 6px;}
+.l-tree .l-first .l-expandable-open{background-position:0px 6px;}
+.l-tree .l-last .l-expandable-open{ background-position:0px 6px;}
+.l-tree .l-onlychild  .l-expandable-open{background-position:0px 6px;}
+
+.l-tree .l-body-inner
+{
+    margin-top: 5px; width: 500px; height:42px;border:1px;
+}
+
+.l-tree .l-over
+{
+    height:30px;background:#14578B ; border:1px solid #1B6FAF;
+}
+/* .l-tree .l-over span
+{
+    text-decoration:underline;
+} */
+.l-tree li .l-selected
+{
+    background:url('../images/tree/over-bg.gif') no-repeat;
+    background-size:100% 42px;
+}
+
+.l-tree .l-selected span
+{
+	color:#FFE400; padding:0px 2px;height: 30px;padding-left: 5px;
+	line-height: 30px;
+}
+
+.l-tree .l-line{background:none;}
+.l-tree .l-note{ background:none;}
+.l-tree .l-note-last{ background:none;}
+.l-tree .l-checkbox-unchecked{ background-position:-22px 0px;} 
+.l-tree .l-checkbox-checked{ background-position:-22px -22px;} 
+.l-tree .l-checkbox-incomplete{ background-position:-22px -44px;} 
+
+.l-tree .l-over .l-checkbox-unchecked{ background-position:-44px 0px;} 
+.l-tree .l-over .l-checkbox-checked{ background-position:-44px -22px;} 
+.l-tree .l-over .l-checkbox-incomplete{ background-position:-44px -44px;} 
+
+.l-tree .l-tree-icon-sat{margin-top:6px;  background-position:-22px 0px;}
+.l-tree .l-tree-icon-sat-open{margin-top:6px;  background-position:-22px 0px;}
+.l-tree .l-tree-icon-folder{ background-position:-22px -88px;}
+.l-tree .l-tree-icon-none{ background:none;}
+.l-tree .l-tree-icon-none img{border: 0;height: 16px;width: 16px; top:2px; margin-top:2px; margin-left:2px;}
+.l-tree .l-tree-icon-folder-open{background-position:-22px -88px;}
+.l-tree .l-tree-icon-leaf{background-position:-22px -110px;}

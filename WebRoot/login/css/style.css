@@ -1,0 +1,156 @@
+﻿/* 清除内外边距 */
+body, h1, h2, h3, h4, h5, h6, hr, p, blockquote, /* structural elements 结构元素 */
+dl, dt, dd, ul, ol, li, /* list elements 列表元素 */
+pre, /* text formatting elements 文本格式元素 */
+fieldset, lengend, button, input, textarea, /* form elements 表单元素 */
+th, td { /* table elements 表格元素 */
+    margin: 0;
+    padding: 0;
+}
+table{
+	border-collapse:collapse;
+	border-spacing:0;
+}
+html{font: 12px/1 Tahoma, Helvetica, Arial, "\5b8b\4f53", sans-serif; 
+/* 用 ascii 字符表示，使得在任何编码下都无问题 */
+	-ms-text-size-adjust:100%;
+	-webkit-text-size-adjust:100%
+}
+body{
+	display: block;
+	width: 100%;
+    height: 100%;
+    font-family: "微软雅黑", sans-serif;
+    overflow: hidden;
+    background:#bed3fe;
+    color:#000;
+    /*background: -webkit-radial-gradient(0% 100%, ellipse cover, rgba(104,128,138,.4) 10%,rgba(138,114,76,0) 40%), linear-gradient(to bottom, rgba(57,173,219,.25) 0%,rgba(42,60,87,.4) 100%), linear-gradient(135deg, #670d10 0%,#092756 100%);
+   */ }
+
+#pic{
+	width: 720px;
+	height: 495px;
+	background:url(../images/login.png) no-repeat top center;
+	position: absolute;
+	top:50%; 
+	left:50%; 
+	margin-left:-369px; 
+	margin-top:-255px; 
+	border-radius: 20px;
+	box-shadow: #fff 0px 0px 30px;
+}
+#pic_top{
+	position: relative;
+	float: right;
+	height: 110px;
+	right: 30px;
+    top: 20px;
+}
+#pic_bottom{
+	position: absolute;
+	height: 110px;
+	bottom: 10px;
+	left: 20px;
+}
+.pic0{
+	float: left;
+	margin: 5px;
+	width:100px;
+	height:100px;
+	border-radius:50px;
+	border:solid rgb(100,100,100) 1px;
+	box-shadow: #fff 0px 0px 20px;background: #EEFF99;
+}
+.pic1{
+	float: left;
+	margin: 4px 25px;
+	width:100px;
+	height:80px;
+	/*border-radius:50px;*/
+	border:solid rgb(100,100,100) 1px;
+	box-shadow: #fff 0px 0px 20px;background: #EEFF99;
+}
+.login{
+    position: absolute;
+    top: 230px;
+    right: 80px;
+   /* margin: -130px 0 0 -150px;
+*/    width: 300px;
+    height: 200px;
+/*    font-size: 16px;
+    font-weight: bold;*/
+}
+
+#com{
+	position: absolute;
+	bottom: 5%;
+    /* left: 50%; */
+    text-align: center;
+	width:100%;
+color:#000;
+	font-size: 14px;
+}
+.foot {
+    text-align: center;
+    font-family: "微软雅黑";
+    font-size: 14px;
+    color: #000;
+    margin-top: 209px;
+    padding-bottom: 86px;
+}
+input{
+    width: 125px;
+    margin:2px 0;
+    /*margin-top: 5px;*/
+    /*background: rgba(0,0,0,0.3);*/
+    /*border: none;*/
+   /* outline: none;*/
+   /* padding: 2px 0;*/
+    height: 18px;
+   /* font-size: 13px;*/
+
+ /*   text-shadow: 1px 1px 1px rgba(0,0,0,0.3);*/
+    border: 1px solid #565555;
+   /* border-radius: 4px;*/
+    /*box-shadow: inset 0 -5px 45px rgba(100,100,100,0.2), 0 1px 1px rgba(255,255,255,0.2);*/
+   /* -webkit-transition: box-shadow .5s ease;
+    transition: box-shadow .5s ease;*/
+}
+select{
+   /* margin-bottom: 10px;*/
+    margin-top: 3px;
+    width: 100%;
+}
+option{
+	padding: 7px;
+}
+.btn{
+	display: inline-block;
+    padding: 0px 10px;
+    /*margin-bottom: 0;*/
+	margin-top:10px;
+    font-size: 12px;
+    line-height: 18px;
+    color: #333;
+    text-align: center;
+    vertical-align: middle;
+    cursor: pointer;
+    background-color: #92bbdd;
+    border: 1px solid #bbb;
+    border-color: #c5c5c5;
+    /*margin:0px 13px;*/
+    border-radius: 4px;
+  /*  font-weight: bold;*/
+    background-image:-webkit-linear-gradient(to top, #89b5fe, #eeeaf1,#89b5fe);
+  background-image:linear-gradient(to top, #89b5fe, #eeeaf1,#89b5fe);
+}
+.btn:hover,.btn:active,.btn.active,.btn.disabled,.btn[disabled] {
+    color:#0058ff ;
+    background-color: #e6e6e6;
+    *background-color: #d9d9d9;
+     background-image:-webkit-linear-gradient(to top, #89b5fe, #eeeaf1,#89b5fe);
+  background-image:linear-gradient(to top, #89b5fe, #eeeaf1,#89b5fe);
+}
+#btn2{
+    margin-left: 14px;
+}

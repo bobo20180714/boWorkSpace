@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<template>
+	
+<group tablespace="alarm">
+	<!-- 根据卫星编号和遥测查询门限报警规则 -->
+	<statement id="selectLimitRuleBySat">
+	<![CDATA[
+	      select tm.TMID tm_param_id,tm.TMNAME tm_param_name,tm.TMCODE tm_param_code,tm.SATID sat_id,tm.JUDGETYPE,
+	      ruleInfo.ruleid,ruleInfo.CANALARM,ruleInfo.RULECONTENT,
+	      ruleInfo.JUDGECOUNT,rownum n,ytm.tm_param_type
+	      from ALARM_TM_INFO tm
+        left join tm ytm on ytm.tm_param_id = tm.tmid
+	      left join  (select * from ALARM_RULE_INFO where judgetype = 0 ) ruleInfo
+	      on tm.tmid = ruleInfo.Tmid
+	      where tm.judgetype = 0
+	      and tm.satid = #satid#
+	      and (islike(tm.TMNAME,#key#) > 0 OR islike(tm.TMCODE,#key#) > 0)
+	       order by tm.TMID
+	]]>
+	</statement>
+	
+	</group>
+
+</template>

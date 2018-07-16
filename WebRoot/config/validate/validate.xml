@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<validate-conf>
+	<!-- ruleid：验证规则编号 field：需要验证的字段 -->
+	<validate ruleid="0001">
+		<field name="test" validate="{required:true,email:true}" />
+	</validate>
+</validate-conf>

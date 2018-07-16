@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<connector-config>
+	<!-- 报警结果 接收-->
+	<connector name="alarmResult" startup="true" classImpl="com.bydz.fltp.connector.udp.UDPServer">
+		<param name="broadcast-address" value="230.0.0.1:50002"/>
+		<param name="revicedata-length" value="65535"/>
+		<param name="executorPoolSize" value="2"/>
+		<param name="dispatcherClassImpl" value="com.xpoplarsoft.alarm.dispatcher.AlarmResultDispatcher"/>
+	</connector>
+	
+	<!-- 订单管理 -->
+	<connector name="default" startup="true" classImpl="com.bydz.fltp.connector.udp.UDPServer">
+		<param name="broadcast-address" value="225.20.0.1:10001"/>
+		<param name="revicedata-length" value="50000"/>
+		<param name="executorPoolSize" value="10"/>
+		<param name="dispatcherClassImpl" value="com.xpoplarsoft.compute.orderDealLog.dispatch.OrderLogDispatcher"/>
+	</connector>
+	
+	<!-- 链路监视地址端口-->
+	<connector name="netlink_monitor" startup="true" classImpl="com.bydz.fltp.connector.udp.UDPServer">
+		<param name="broadcast-address" value="225.1.1.1:10001"/>
+		<param name="revicedata-length" value="5000"/>
+		<param name="executorPoolSize" value="10"/>
+		<param name="dispatcherClassImpl" value="com.xpoplarsoft.single.databuffer.action.NetLinkDispatcherImpl"/>
+	</connector>
+</connector-config>

@@ -1,0 +1,760 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<template>
+	<group tablespace="addressManager">
+		<statement id="list">
+			select  * from sat_address_table where SAT_ID = #satId# order by create_time desc
+		</statement>
+		<statement id="add">
+			insert into sat_address_table (pk_id,sat_id,address,port,content,create_time,type)
+			values(pk_seq.nextval,#sat_id#,#address#,#port#,#content#,to_char(sysdate, 'yyyy-mm-dd hh24:mm:ss'),#type#)
+		</statement>
+		<statement id="view">
+			select  * from sat_address_table where pk_id = #pkId#
+		</statement>
+		<statement id="update">
+			update sat_address_table set address = #address#,port = #port#,content = #content#,type = #type#
+			where pk_id = #pkId#
+		</statement>
+		<statement id="delete">
+			delete from sat_address_table where pk_id = #pkId#
+		</statement>
+	</group>
+	
+	<group tablespace="AloneInfoMapper">
+	<!-- <statement id="resourceAdd">
+		 update  sys_resource 
+		 set sys_resource_id=#sys_resource_id#,owner_id=#owner_id#
+	</statement> -->
+	
+	<statement id="subSystemInfoAdd">
+		 insert into  stand_alone_info(sub_system_id,stand_alone_id,stand_alone_name,stand_alone_code,stand_alone_type,status,create_user,create_time) values
+		 (#sub_system_id#,#stand_alone_id#,#stand_alone_name#,#stand_alone_code#,#stand_alone_type#,0,#create_user#,#create_time#)
+	</statement>
+	
+	
+	<statement id="standAloneInfoById">
+		select name stand_alone_name,code stand_alone_code,system_type_id stand_alone_type,system_type_name stand_alone_type_name,status,create_user,create_time from sat_sub_alone_view where type=6 and sys_resource_id=#stand_alone_id# order by name
+	</statement>
+	
+	<statement id="standAloneInfoUpdate">
+	update stand_alone_info set stand_alone_name=#stand_alone_name#,stand_alone_code=#stand_alone_code#,stand_alone_type=#stand_alone_type#  where stand_alone_id=#stand_alone_id#
+	</statement>
+	
+	<statement id="standAloneInfoDeleteById">
+	update stand_alone_info set status=1  where stand_alone_id=#stand_alone_id#
+	</statement>
+	</group>
+	
+	<group tablespace="sat_param">
+	<statement id="findGrantUserGroupEquipmentTree">
+		select  sv.* from sat_sub_alone_view sv where sv.owner_id=#sys_resource_id# and (islike(code,#key#)>0 or islike(name,#key#)>0);
+	</statement>
+	
+	<!-- 查询遥测参数sql 孟祥超 -->
+	<statement id="queryParamsInfo">
+		<![CDATA[
+		    SELECT distinct tt.* FROM (
+			    select TM.TM_PARAM_NAME,TM.TM_PARAM_CODE,TM.TM_PARAM_TYPE,TM.STATUS,
+			           SUB_ALONE_TM.TM_PARAM_ID,SUB_ALONE_TM.OWNER_ID SAT_ID,
+			           SAT_SUB_ALONE_VIEW.NAME  ,tm.tm_param_num
+			    from SUB_ALONE_TM,SAT_SUB_ALONE_VIEW,TM
+			    where SUB_ALONE_TM.OWNER_ID = SAT_SUB_ALONE_VIEW.SYS_RESOURCE_ID
+			    and TM.TM_PARAM_ID = SUB_ALONE_TM.Tm_Param_Id 
+			    union all
+			    select  TM.TM_PARAM_NAME,tm.tm_param_code,TM.TM_PARAM_TYPE,TM.STATUS,
+			            TM.TM_PARAM_ID,TM.SAT_ID,
+			            SAT_SUB_ALONE_VIEW.NAME  ,tm.tm_param_num
+			    from TM,SAT_SUB_ALONE_VIEW 
+			    where TM.SAT_ID = SAT_SUB_ALONE_VIEW.SYS_RESOURCE_ID
+		    )tt 
+		    where tt.sat_id=#sat_id# AND tt.STATUS=0
+			and (
+				islike(tt.tm_param_code,#tm_param_code#)>0 
+				or islike(tt.tm_param_name,#tm_param_name#)>0 
+			) 
+			order by tt.tm_param_code
+		]]>
+	</statement>
+	
+	<statement id="findGrantUserGroupTmParam">
+	<![CDATA[
+		select t.* from(
+			select s.*, rownum n from tm_param_view s
+			where owner_id=#id# and (islike(tm_param_name,#key#)>0 or islike(tm_param_code,#key#)>0) 
+			order by tm_param_code asc)t
+		where n>=(#page#-1)*#pagesize#+1 and n<(#page#)*#pagesize#+1
+	]]>		
+	
+	</statement>
+	
+		<statement id="getfindTmParamCount">
+	select count(sv.tm_param_id) from(
+				select t.* from(
+			select s.*, rownum n from tm_param_view s
+			where owner_id=#id# and (islike(tm_param_name,#key#)>0 or islike(tm_param_code,#key#)>0) 
+			order by tm_param_code asc)t
+			)sv
+	</statement>
+	
+	<statement id="getTmParamsInfoById">
+		<![CDATA[
+	
+		select *
+			from tm_param_view 
+			where tm_param_id=#tm_param_id# 
+				
+		]]>
+	
+	</statement>
+	
+	<statement id="findGrantUserGroupTmParamById">
+	
+	<![CDATA[
+	select ss.* from(
+		select ssv.*,rownum n from(
+		SELECT distinct tt.* FROM (
+		select TM.TM_PARAM_NAME,TM.TM_PARAM_NUM,TM.TM_PARAM_CODE,TM.TM_PARAM_TYPE,TM.STATUS,
+		       SUB_ALONE_TM.TM_PARAM_ID,SUB_ALONE_TM.OWNER_ID SAT_ID,
+		       SAT_SUB_ALONE_VIEW.NAME 
+		from SUB_ALONE_TM,SAT_SUB_ALONE_VIEW,TM
+		where SUB_ALONE_TM.OWNER_ID = SAT_SUB_ALONE_VIEW.SYS_RESOURCE_ID
+		and TM.TM_PARAM_ID = SUB_ALONE_TM.Tm_Param_Id 
+		union all
+		select  TM.TM_PARAM_NAME,TM.TM_PARAM_NUM,tm.tm_param_code,TM.TM_PARAM_TYPE,TM.STATUS,
+		        TM.TM_PARAM_ID,TM.SAT_ID,
+		        SAT_SUB_ALONE_VIEW.NAME 
+		from TM,SAT_SUB_ALONE_VIEW 
+		where TM.SAT_ID = SAT_SUB_ALONE_VIEW.SYS_RESOURCE_ID
+		)tt 
+		where tt.sat_id = #sat_id# AND TT.STATUS=0
+			and (islike(tt.tm_param_code,#tm_param_code#)>0 
+			and islike(tt.tm_param_name,#tm_param_name#)>0 
+			and islike(tt.tm_param_type,#tm_param_type#)>0)
+			  order by tt.TM_PARAM_ID
+		 )ssv
+		) ss 
+	where n>=(#page#-1)*#pageSize#+1 and n<(#page#)*#pageSize#+1
+	]]>
+	
+	</statement>
+	
+	<!-- 关键字查询 -->
+	<statement id="findGrantUserGroupTmParamById_keyquery">
+	<![CDATA[
+	select ss.* from(
+		select ssv.*,rownum n from(
+		SELECT distinct tt.* FROM (
+		select TM.TM_PARAM_NAME,TM.TM_PARAM_NUM,TM.TM_PARAM_CODE,TM.TM_PARAM_TYPE,TM.STATUS,
+		       SUB_ALONE_TM.TM_PARAM_ID,SUB_ALONE_TM.OWNER_ID SAT_ID,
+		       SAT_SUB_ALONE_VIEW.NAME 
+		from SUB_ALONE_TM,SAT_SUB_ALONE_VIEW,TM
+		where SUB_ALONE_TM.OWNER_ID = SAT_SUB_ALONE_VIEW.SYS_RESOURCE_ID
+		and TM.TM_PARAM_ID = SUB_ALONE_TM.Tm_Param_Id 
+		union all
+		select  TM.TM_PARAM_NAME,TM.TM_PARAM_NUM,tm.tm_param_code,TM.TM_PARAM_TYPE,TM.STATUS,
+		        TM.TM_PARAM_ID,TM.SAT_ID,
+		        SAT_SUB_ALONE_VIEW.NAME 
+		from TM,SAT_SUB_ALONE_VIEW 
+		where TM.SAT_ID = SAT_SUB_ALONE_VIEW.SYS_RESOURCE_ID
+		)tt 
+		where tt.sat_id = #sat_id# AND TT.STATUS=0
+			and (islike(tt.tm_param_code,#tm_param_code#)>0 
+			or islike(tt.tm_param_name,#tm_param_name#)>0)
+		 )ssv
+		 order by ssv.TM_PARAM_ID
+		) ss 
+	where n>=(#page#-1)*#pageSize#+1 and n<(#page#)*#pageSize#+1
+	]]>
+	
+	</statement>
+	
+	<statement id="tmParamUpdate">
+		update TM set tm_param_name=#tm_param_name#,tm_param_code=#tm_param_code#,tm_param_num=#tm_param_num#,tm_param_type=#tm_param_type#,tm_param_bdh=#tm_param_bdh# where tm_param_id=#tm_param_id#;
+	</statement>
+	
+	<statement id="findSubNoParamBySubQueryPage">
+	<![CDATA[
+    	select sss.*,rownum n from (
+               select  TM.TM_PARAM_NAME,tm.tm_param_code,TM.TM_PARAM_TYPE,TM.STATUS,TM.TM_PARAM_NUM,TM.TM_PARAM_ID
+               from TM 
+               where sat_id = #id# AND STATUS=0
+               and (islike(tm_param_code,#key#)>0 or islike(tm_param_name,#key#)>0) 
+  	 	)sss where sss.tm_param_id not in (select distinct tm_param_id from SUB_ALONE_TM where owner_id=#owner_id#)
+		]]>
+   <!--  select vv.* from(
+    select sss.*,rownum n from (
+           SELECT tt.* FROM (
+            select TM.TM_PARAM_NAME,TM.TM_PARAM_CODE,TM.TM_PARAM_TYPE,TM.STATUS,TM.TM_PARAM_NUM,
+                      SUB_ALONE_TM.TM_PARAM_ID,SUB_ALONE_TM.OWNER_ID SAT_ID,
+                      SAT_SUB_ALONE_VIEW.NAME 
+               from SUB_ALONE_TM,SAT_SUB_ALONE_VIEW,TM
+               where SUB_ALONE_TM.OWNER_ID = SAT_SUB_ALONE_VIEW.SYS_RESOURCE_ID
+               and TM.TM_PARAM_ID = SUB_ALONE_TM.Tm_Param_Id 
+             
+              union all
+              
+               select  TM.TM_PARAM_NAME,tm.tm_param_code,TM.TM_PARAM_TYPE,TM.STATUS,TM.TM_PARAM_NUM,
+                     TM.TM_PARAM_ID,TM.SAT_ID,
+                      SAT_SUB_ALONE_VIEW.NAME 
+               from TM,SAT_SUB_ALONE_VIEW 
+               where TM.SAT_ID = SAT_SUB_ALONE_VIEW.SYS_RESOURCE_ID
+
+		        )tt 
+		      where tt.sat_id = #id# AND TT.STATUS=0
+	      			and (islike(tt.tm_param_code,#key#)>0 
+					or islike(tt.tm_param_name,#key#)>0) 
+       		)sss where sss.tm_param_id not in
+       			(select distinct tm_param_view.tm_param_id from tm_param_view,tm where tm_param_view.owner_id=#owner_id# and tm.status=0)
+       )vv where n>=(#page#-1)*#pagesize#+1 and n<(#page#)*#pagesize#+1 -->
+	</statement>
+	
+	<statement id="getSubNoParamCount">
+		select count(sss.tm_param_id) from(
+		 SELECT tt.* FROM (
+            select TM.TM_PARAM_NAME,TM.TM_PARAM_CODE,TM.TM_PARAM_TYPE,TM.STATUS,
+                      SUB_ALONE_TM.TM_PARAM_ID,SUB_ALONE_TM.OWNER_ID SAT_ID,
+                      SAT_SUB_ALONE_VIEW.NAME 
+               from SUB_ALONE_TM,SAT_SUB_ALONE_VIEW,TM
+               where SUB_ALONE_TM.OWNER_ID = SAT_SUB_ALONE_VIEW.SYS_RESOURCE_ID
+               and TM.TM_PARAM_ID = SUB_ALONE_TM.Tm_Param_Id 
+             
+              union all
+              
+               select  TM.TM_PARAM_NAME,tm.tm_param_code,TM.TM_PARAM_TYPE,TM.STATUS,
+                     TM.TM_PARAM_ID,TM.SAT_ID,
+                      SAT_SUB_ALONE_VIEW.NAME 
+               from TM,SAT_SUB_ALONE_VIEW 
+               where TM.SAT_ID = SAT_SUB_ALONE_VIEW.SYS_RESOURCE_ID
+
+		        )tt 
+		      where tt.sat_id = #id# AND TT.STATUS=0
+   	      			and islike(tt.tm_param_code,#key#)>0 
+					and islike(tt.tm_param_name,#key#)>0 
+       )sss 
+       where sss.tm_param_id not in
+       	(select distinct tm_param_view.tm_param_id from tm_param_view,tm where tm_param_view.owner_id=#owner_id# and tm.status=0)
+	</statement>
+	
+	<statement id="findSubHasParamBySubQueryPage">
+	<![CDATA[
+	select ss.* from(
+		 select s.*,rownum n from tm s where s.tm_param_id in(     
+	 		select distinct TM_PARAM_ID from tm_param_view 
+	      	where owner_id=#id# and (islike(tm_param_name,#key#)>0 or islike(tm_param_code,#key#)>0)
+	      	) 
+	      )ss
+    where n>=(#page#-1)*#pagesize#+1 and n<(#page#)*#pagesize#+1 
+	]]>
+	</statement>
+	
+	
+	<statement id="getSubHasParamCount">
+	select count(t.tm_param_id) from(
+	 select s.*,rownum n from tm s where s.tm_param_id in(     
+	 select distinct TM_PARAM_ID from tm_param_view 
+	      where owner_id=#id# and (islike(tm_param_name,#key#)>0 or islike(tm_param_code,#key#)>0) 
+	      )
+	  )t
+	</statement>
+	
+	<statement id="getSatParamInfoCount" >
+	<![CDATA[
+    	select count(ss.tm_param_id) from(
+		select ssv.* from(
+		SELECT distinct tt.* FROM (
+		select TM.TM_PARAM_NAME,TM.TM_PARAM_CODE,TM.TM_PARAM_TYPE,TM.STATUS,
+		       SUB_ALONE_TM.TM_PARAM_ID,SUB_ALONE_TM.OWNER_ID SAT_ID,
+		       SAT_SUB_ALONE_VIEW.NAME 
+		from SUB_ALONE_TM,SAT_SUB_ALONE_VIEW,TM
+		where SUB_ALONE_TM.OWNER_ID = SAT_SUB_ALONE_VIEW.SYS_RESOURCE_ID
+		and TM.TM_PARAM_ID = SUB_ALONE_TM.Tm_Param_Id 
+		union all
+		select  TM.TM_PARAM_NAME,tm.tm_param_code,TM.TM_PARAM_TYPE,TM.STATUS,
+		        TM.TM_PARAM_ID,TM.SAT_ID,
+		        SAT_SUB_ALONE_VIEW.NAME 
+		from TM,SAT_SUB_ALONE_VIEW 
+		where TM.SAT_ID = SAT_SUB_ALONE_VIEW.SYS_RESOURCE_ID
+		)tt 
+		where tt.sat_id = #sat_id# AND TT.STATUS=0
+			and islike(tt.tm_param_code,#tm_param_code#)>0 
+			and islike(tt.tm_param_name,#tm_param_name#)>0 
+			and islike(tt.tm_param_type,#tm_param_type#)>0
+		 )ssv
+		) ss 
+	]]>
+	</statement>
+	
+	<!-- 关键字查询 -->
+		<statement id="getSatParamInfoCount_keyquery" >
+	<![CDATA[
+    	select count(ss.tm_param_id) from(
+		select ssv.* from(
+		SELECT distinct tt.* FROM (
+		select TM.TM_PARAM_NAME,TM.TM_PARAM_CODE,TM.TM_PARAM_TYPE,TM.STATUS,
+		       SUB_ALONE_TM.TM_PARAM_ID,SUB_ALONE_TM.OWNER_ID SAT_ID,
+		       SAT_SUB_ALONE_VIEW.NAME 
+		from SUB_ALONE_TM,SAT_SUB_ALONE_VIEW,TM
+		where SUB_ALONE_TM.OWNER_ID = SAT_SUB_ALONE_VIEW.SYS_RESOURCE_ID
+		and TM.TM_PARAM_ID = SUB_ALONE_TM.Tm_Param_Id 
+		union all
+		select  TM.TM_PARAM_NAME,tm.tm_param_code,TM.TM_PARAM_TYPE,TM.STATUS,
+		        TM.TM_PARAM_ID,TM.SAT_ID,
+		        SAT_SUB_ALONE_VIEW.NAME 
+		from TM,SAT_SUB_ALONE_VIEW 
+		where TM.SAT_ID = SAT_SUB_ALONE_VIEW.SYS_RESOURCE_ID
+		)tt 
+		where tt.sat_id = #sat_id# AND TT.STATUS=0
+			and (islike(tt.tm_param_code,#tm_param_code#)>0 
+			or islike(tt.tm_param_name,#tm_param_name#)>0)
+		 )ssv
+		) ss 
+	]]>
+	</statement>
+	
+	<statement id="tmParamDelete">
+	update tm set status=1 where tm_param_id = #tm_param_id#
+	</statement>
+	
+	<statement id="paramResourceUpdate">
+	insert into sub_alone_tm(tm_param_id,owner_id)values(#id#,#owner_id#) 
+	</statement>
+	
+	<statement id="paramDropToRightAll">
+	insert into sub_alone_tm (tm_param_id, owner_id)
+	select tm_param_id, #id# from tm_param_view 
+	where owner_id=#owner_id# and (islike(tm_param_name,#key#)>0 or islike(tm_param_code,#key#)>0)
+	</statement>
+	
+	<statement id="aloneParamDropToRightAll">
+		update sub_alone_tm set owner_id=#owner_id# where sys_resource_id in (
+			select tm_param_id from tmparam_notin_standalone_view where stand_alone_id=#id#
+			and (islike(tm_param_code,#key#)>0 or islike(tm_param_name,#key#)>0 or islike(tm_param_num,#key#)>0)
+		)
+	</statement>
+	<statement id="insertToAloneTm">
+		insert into SUB_ALONE_TM 
+		select tm_param_id,#owner_id# as owner_id from tm where sat_id = #id# 
+		and (islike(tm_param_code,#key#) > 0
+				or islike(tm_param_name,#key#) > 0)
+	</statement>
+	
+	<statement id="paramDropToLeftAll">
+		delete sub_alone_tm where owner_id= #owner_id#
+	</statement>
+	
+	<statement id="ParamDropToLeft">
+		delete sub_alone_tm where tm_param_id =#id# and owner_id = #owner_id#
+	</statement>
+	 
+	<delete id="roleEquipmentDelete" >
+		delete grant_role_resource where ug_id=#ug_id# and grant_type=0
+	</delete>
+	<insert id="grantRoleResourceAdd" >
+		insert into  grant_role_resource(grant_id,sys_resource_id,ug_id,grant_manage_type,grant_type,grant_status,create_user,create_time,end_time) 
+		values(sys_guid(),#sys_resource_id#,#ug_id#,#grant_manage_type#,#grant_type#,#grant_status#,#create_user#,TIMESTAMP2STR(sysdate),#end_time#)
+	</insert>
+	<select id="findRoleSatSubAloneTree" parameterType="java.lang.String" resultType="SatSubAlone">
+		select * from sat_sub_alone_view where  owner_id=#sys_resource_id# 
+		and sys_resource_id in ( select sys_resource_id from grant_role_resource where ug_id=#ug_id# and grant_type=0)
+		order by name
+	</select>
+
+	 <!-- 航天器树sql mxc -->
+	 <statement id="findSatTree">
+	 	select t.* from (
+       		select sat_sub_alone_view.*,name sat_name,code sat_code,sys_resource_id sat_id from sat_sub_alone_view where  type = 0   and ( islike(code,#key#)>0  or islike(name,#key#)>0 )
+          union all
+		    select son.*,father.name sat_name,father.code sat_code,father.sys_resource_id sat_id 
+		    from sat_sub_alone_view son,sat_sub_alone_view father
+		    where son.type = 5 and father.type = 0 and son.owner_id = father.sys_resource_id
+		    and ( islike(father.code,#key#)>0  or islike(father.name,#key#)>0 )
+    	union all 
+		    select lastson.*,secondson.sat_name,secondson.sat_code,secondson.sat_id from sat_sub_alone_view lastson,
+		       (
+		          select son.*,father.name sat_name,father.code sat_code,father.sys_resource_id sat_id 
+		           from sat_sub_alone_view son,sat_sub_alone_view father
+		            where son.type = 5 and father.type = 0 and son.owner_id = father.sys_resource_id    
+		            and ( islike(father.code,#key#)>0  or islike(father.name,#key#)>0 )
+		       ) secondson
+		    where lastson.type = 6 and lastson.owner_id = secondson.sys_resource_id
+     	) t
+		order by t.name
+	</statement>
+
+	 <statement id="add">
+	 	insert into tm (tm_param_id,sat_id,tm_param_num,tm_param_name,tm_param_code,tm_param_type,status,create_time)
+	 	values(#tm_param_id#,#sat_id#,#tm_param_num#,#tm_param_name#,#tm_param_code#,#tm_param_type#,0,to_char(sysdate, 'yyyy-mm-dd hh24:mm:ss'))
+	</statement>
+	<statement id="getTmId">
+		select SAT_TM_ID_SEQ.nextval pk_id from dual 
+	</statement>
+	</group>
+	
+	<group tablespace="satinfomapper">
+	<statement id="getSatBasicInfoById">
+		<!-- select s.SAT_ID,s.SAT_NAME,s.SAT_CODE,sv.DESIGN_ORG,sv.USER_ORG,sv.DESIGN_LIFE,sv.LAUNCH_TIME,sv.OVER_LIFE,sv.LOCATION,sv.DOMAIN,sv.PLATFORM,sv.FIRST_DESIGNER,sv.TEAM,
+		sv.DUTY_OFFICER,s.CREATE_USER,s.CREATE_TIME,s.STATUS,s.MID,s.SAT_ALIAS,s.MULTICAST_ADDRESS,s.UDP_PORT
+		 from sat_info_detail sv right join satellite s on s.status != 1 where s.sat_id=#sat_id# -->
+		<!--  select s.*,sv.*,to_char(sv.LAUNCH_TIME,'yyyy-mm-dd hh24:mi:ss') time from sat_info_detail sv right join satellite s on s.status != 1 
+		 where s.sat_id= case when #sat_id# is null then s.sat_id else #sat_id# end  
+		-->
+		 <!-- 孟祥超 update -->
+		  select s.*,sv.*,to_char(sv.LAUNCH_TIME,'yyyy-mm-dd') time from satellite s 
+		  left join sat_info_detail sv 
+		  on s.sat_id = sv.sat_id  
+     where s.status != 1 and s.sat_id= #sat_id#
+	</statement>
+	
+	<statement id="findSatBasicInfoQueryPage">
+		<![CDATA[
+		select s.SAT_ID,s.SAT_NAME,s.SAT_CODE,sv.DESIGN_ORG,sv.USER_ORG,sv.DESIGN_LIFE life,to_char(sv.LAUNCH_TIME,'yyyy-mm-dd') TIME,sv.OVER_LIFE,sv.LOCATION,sv.DOMAIN,sv.PLATFORM,sv.FIRST_DESIGNER,sv.TEAM,
+		sv.DUTY_OFFICER,s.CREATE_USER,s.CREATE_TIME,s.STATUS,s.MID,s.SAT_ALIAS,s.MULTICAST_ADDRESS,s.UDP_PORT
+		 from satellite s , sat_info_detail sv
+		 where sv.sat_id = s.sat_id  and s.status != 1
+		 and (islike(s.SAT_NAME,#SAT_NAME#)>0) and (islike(sv.DESIGN_ORG,#DESIGN_ORG#)>0) and (islike(sv.USER_ORG,#USER_ORG#)>0)
+		 and case when #launch_time_start# is null then str2timestamp('1-1-2') else sv.LAUNCH_TIME end 
+		 	> case when #launch_time_start# is null then str2timestamp('1-1-1') else str2timestamp(#launch_time_start#) end 
+	     and case when #LAUNCH_TIME_end# is null then str2timestamp('1-1-1') else sv.LAUNCH_TIME end 
+	       <= case when #LAUNCH_TIME_end# is null then str2timestamp('1-1-2') else str2timestamp(#LAUNCH_TIME_end#) end  
+		 
+		order by sat_name
+	]]>
+	</statement>
+	
+	<statement id="findSatBasicInfoQueryPageLimit">
+		<![CDATA[
+			select distinct t.* from (
+				select s.SAT_ID,s.SAT_NAME,s.SAT_CODE,sv.DESIGN_ORG,sv.USER_ORG,sv.DESIGN_LIFE life,to_char(sv.LAUNCH_TIME,'yyyy-mm-dd') TIME,sv.OVER_LIFE,sv.LOCATION,sv.DOMAIN,sv.PLATFORM,sv.FIRST_DESIGNER,sv.TEAM,
+						sv.DUTY_OFFICER,s.CREATE_USER,s.CREATE_TIME,s.STATUS,s.MID,s.SAT_ALIAS,s.MULTICAST_ADDRESS,s.UDP_PORT,sv.LAUNCH_TIME
+						 from satellite s , sat_info_detail sv,GRANT_ROLE_RESOURCE grr
+						 where sv.sat_id = s.sat_id  and s.status = 0  and grr.sys_resource_id = s.sat_id
+				     and grr.ug_id = #user_id#
+				 union all    
+				     select sat.sat_id,sat.sat_name,sat.sat_code,sv.DESIGN_ORG ,sv.USER_ORG,sv.DESIGN_LIFE life,to_char(sv.LAUNCH_TIME,'yyyy-mm-dd') TIME,sv.OVER_LIFE,sv.LOCATION,sv.DOMAIN,sv.PLATFORM,sv.FIRST_DESIGNER,sv.TEAM,
+						sv.DUTY_OFFICER,sat.CREATE_USER,sat.CREATE_TIME,sat.STATUS,sat.MID,sat.SAT_ALIAS,sat.MULTICAST_ADDRESS,sat.UDP_PORT,sv.LAUNCH_TIME
+				     from GRANT_ROLE_RESOURCE grr,satellite sat, sat_info_detail sv
+								where grr.sys_resource_id = sat.sat_id 
+				        and sat.sat_id = sv.sat_id
+				        and grr.grant_type = 0  and sat.status = 0
+								and grr.ug_id = (select ORG_ID from users where users.user_id = #user_id# and rownum = 1)
+				        ) t
+						 where (islike(t.SAT_NAME,#SAT_NAME#)>0) and (islike(t.DESIGN_ORG,#DESIGN_ORG#)>0) and (islike(t.USER_ORG,#USER_ORG#)>0)
+						 and case when #launch_time_start# is null then str2timestamp('1-1-2') else t.LAUNCH_TIME end 
+						 	> case when #launch_time_start# is null then str2timestamp('1-1-1') else str2timestamp(#launch_time_start#) end 
+					     and case when #LAUNCH_TIME_end# is null then str2timestamp('1-1-1') else t.LAUNCH_TIME end 
+					       <= case when #LAUNCH_TIME_end# is null then str2timestamp('1-1-2') else str2timestamp(#LAUNCH_TIME_end#) end  
+						order by create_time desc
+	]]>
+	</statement>
+	
+	 <statement id="satBasicInfoUpdateSat">
+		update satellite s set s.sat_name = #sat_name#,s.sat_code = #sat_code#, s.multicast_address=#multicast_address#,s.udp_port=#udp_port# where s.sat_id=#sat_id#
+	</statement>
+	
+	 <statement id="resourceAdd">
+	insert into sub_alone_tm(tm_param_id,owner_id) values(#{sys_resource_id},#{owner_id})
+	</statement>
+	
+	<statement id="satBasicInfoUpdateSatDetail">
+		<!-- update sat_info_detail sv set sv.sat_id=#sat_id#,sv.design_org=#design_org#,
+		sv.user_org=#user_org#,sv.design_life=#design_life#,sv.launch_time=STR2TIMESTAMP(#launch_time#),
+		sv.over_life=#over_life#,sv.location=#location#,sv.domain=#domain#,sv.platform=#platform#,
+		sv.first_designer=#first_designer#,sv.team=#team#,sv.duty_officer=#duty_officer# where 1=1 -->
+		update sat_info_detail sv set sv.design_org=#design_org#,sv.user_org=#user_org#,
+		sv.design_life=#design_life#,sv.launch_time=str2timestamp(#launch_time#),
+		sv.over_life=#over_life#,sv.location=#location#,sv.domain=#domain#,sv.platform=#platform#,
+		sv.first_designer=#first_designer#,sv.team=#team#,sv.duty_officer=#duty_officer# ,
+		sv.SAT_ftm=#SAT_ftm#,sv.SAT_FTC=#SAT_FTC#,sv.SAT_ORBIT_HEIGHT=#SAT_ORBIT_HEIGHT#,
+		sv.SAT_CYCLE=#SAT_CYCLE#,sv.SAT_LONGTITUDE=#SAT_LONGTITUDE# 
+		where sv.sat_id=#sat_id#
+	</statement>
+	
+	<statement id="satBasicInfoDelete" >
+		update satellite set status=1 where sat_id=#id#
+	</statement>
+	
+	<statement id="getSatBasicInfoCount" >
+		<!-- select count(s.SAT_ID) from satellite s left join sat_info_detail sv on s.sat_id = sv.sat_id -->
+	<![CDATA[
+	select count(SS.SAT_ID) from(
+		select s.SAT_ID,s.SAT_NAME,s.SAT_CODE,sv.DESIGN_ORG,sv.USER_ORG,sv.DESIGN_LIFE life,to_char(sv.LAUNCH_TIME,'yyyy-mm-dd') TIME,sv.OVER_LIFE,sv.LOCATION,sv.DOMAIN,sv.PLATFORM,sv.FIRST_DESIGNER,sv.TEAM,
+		sv.DUTY_OFFICER,s.CREATE_USER,s.CREATE_TIME,s.STATUS,s.MID,s.SAT_ALIAS,s.MULTICAST_ADDRESS,s.UDP_PORT
+		 from satellite s ,sat_info_detail sv 
+		 where sv.sat_id = s.sat_id  and s.status != 1
+		 and (islike(s.SAT_NAME,#SAT_NAME#)>0) and (islike(sv.DESIGN_ORG,#DESIGN_ORG#)>0) and (islike(sv.USER_ORG,#USER_ORG#)>0)
+		 and case when #launch_time_start# is null then str2timestamp('1-1-2') else sv.LAUNCH_TIME end 
+		 	> case when #launch_time_start# is null then str2timestamp('1-1-1') else str2timestamp(#launch_time_start#) end 
+	     and case when #LAUNCH_TIME_end# is null then str2timestamp('1-1-1') else sv.LAUNCH_TIME end 
+	       <= case when #LAUNCH_TIME_end# is null then str2timestamp('1-1-2') else str2timestamp(#LAUNCH_TIME_end#) end  
+       )SS 
+	]]>
+	</statement>	
+		
+	 
+	 <statement id="addSat">
+		insert into SATELLITE(sat_id,mid,sat_name,sat_code,create_time,status) 
+		values(#sat_id#,#mid#,#sat_name#,#sat_code#,to_char(sysdate, 'yyyy-mm-dd hh24:mm:ss'),0)
+	</statement>
+	 <statement id="addSatDetail">
+		insert into sat_info_detail(sat_id,design_org,user_org,design_life,launch_time,over_life,location,domain
+		,platform,first_designer,team,duty_officer,sat_ftm,sat_ftc,sat_orbit_height
+		,sat_cycle,sat_longtitude) 
+		values(#sat_id#,#design_org#,#user_org#,#design_life#,
+		str2timestamp(#launch_time#),#over_life#,#location#,#domain#
+		,#platform#,#first_designer#,#team#,#duty_officer#,#sat_ftm#,#sat_ftc#,#sat_orbit_height#
+		,#sat_cycle#,#sat_longtitude#)
+	</statement>
+	 <statement id="querySatByCode">
+		select * from SATELLITE where sat_code = #satCode# and status = 0
+	</statement>
+	 <statement id="querySatByMid">
+		select * from SATELLITE where mid = #mid# and status = 0
+	</statement>
+	
+	</group>
+	
+	<group tablespace="satsubalonemapper">
+	
+	<!-- 航天器列表 -->
+	<statement id="satList">
+		select * from sat_sub_alone_view 
+		where owner_id=#owner_id# and (islike(code,#key#)>0 or islike(name,#key#)>0)
+		order by create_time desc
+	</statement>
+	
+	<statement id="findGrantUserGroupEquipmentTree">
+		select  sv.* from sat_sub_alone_view sv where sv.owner_id=#sys_resource_id# and (islike(code,#key#)>0 or islike(name,#key#)>0);
+	</statement>
+	
+	<statement id="findGrantUserGroupTmParam">
+		<![CDATA[
+	
+		select t.* 
+			from (select * from tm where
+				sat_id=#sat_id#
+				and (islike(tm_param_code,#key#)>0 or islike(tm_param_name,#key#)>0) order by tm_param_code) t where rownum>#start# and rownum<=#start#+#limit#
+		]]>
+	
+	</statement>
+	
+	 <statement id="findEquipmenList">
+		select * from sat_sub_alone_view where type=#type#
+	</statement>
+	
+	<statement id="findRoleEquipmentList" >
+		select sys_resource_id from grant_role_resource where ug_id=#ug_id# and grant_type=0
+	</statement>
+	
+		
+		
+		<statement id="findSatSubAloneTree">
+		select * from sat_sub_alone_view where  owner_id=#sys_resource_id# and status!=1
+		  <if test="key !=null and key!=''" > and ((type in ('0','5','6') and (upper(code) like '%'||upper(#{key})||'%' or upper(name) like '%'||upper(#{key})||'%') ) or type!=0) </if>
+		order by name
+		</statement>-->
+	 
+	<!--<delete id="roleEquipmentDelete" >
+		delete grant_role_resource where ug_id=#ug_id# and grant_type=0
+	</delete>
+	<insert id="grantRoleResourceAdd" >
+		insert into  grant_role_resource(grant_id,sys_resource_id,ug_id,grant_manage_type,grant_type,grant_status,create_user,create_time,end_time) 
+		values(sys_guid(),#sys_resource_id#,#ug_id#,#grant_manage_type#,#grant_type#,#grant_status#,#create_user#,TIMESTAMP2STR(sysdate),#end_time#)
+	</insert>
+	<select id="findRoleSatSubAloneTree" parameterType="java.lang.String" resultType="SatSubAlone">
+		select * from sat_sub_alone_view where  owner_id=#sys_resource_id# 
+		and sys_resource_id in ( select sys_resource_id from grant_role_resource where ug_id=#ug_id# and grant_type=0)
+		order by name
+	</select>-->
+
+	
+	</group>
+	
+	<group tablespace="subinfomapper">
+		<statement id="resourceAdd">
+		 update  sys_resource 
+		 set sys_resource_id=#sys_resource_id#,owner_id=#owner_id#
+	</statement>
+	
+	<statement id="subSystemInfoAdd">
+		 insert into  sub_system_info(sat_id,sub_system_id,sub_system_name,sub_system_code,sub_system_type,status,create_user,create_time) values
+		 (#sat_id#,#sub_system_id#,#sub_system_name#,#sub_system_code#,#sub_system_type#,0,#create_user#,#create_time#) 
+	</statement>
+	
+	
+	<statement id="subSystemInfoById">
+		select sys_resource_id sub_system_id,name sub_system_name,code sub_system_code,system_type_id sub_system_type,system_type_name sub_system_type_name,status,create_user,create_time from sat_sub_alone_view where type=5 and sys_resource_id=#sub_system_id# order by name
+	</statement>
+	
+	<!-- 根据owner_id 查询子信息 -->
+	<statement id="queryChildInfo">
+		select * from sat_sub_alone_view  where owner_id = #owner_id#
+	</statement>
+	
+	<statement id="subSystemInfoUpdate">
+	update sub_system_info set sub_system_name=#sub_system_name#,sub_system_code=#sub_system_code#,sub_system_type=#sub_system_type#  where sub_system_id=#sub_system_id#
+	</statement>
+	
+	
+	<statement id="subSystemInfoDeleteById">
+	update sub_system_info set status=1 where sub_system_id=#sub_system_id#
+	</statement>
+	
+	<statement id="findSubSystemInfoTree">
+	select * from sub_system_info where sat_id=#sat_id# 
+	</statement>
+	
+	
+	</group>
+	
+	
+	
+<group tablespace="orbitRelated">
+    <statement id="queryOrbitFieldByPage">
+		select j.*,u.user_name create_user_name from ORBIT_RELATED_FIELDS j 
+		left join users u on j.create_user=u.user_id 
+		where jsjg_id=#jsjg_id#
+		order by j.field_order
+	</statement>
+	
+    <statement id="findOrbitRelatedFieldList">
+		select j.*,u.user_name create_user_name from ORBIT_RELATED_FIELDS j 
+		left join users u on j.create_user=u.user_id 
+		where jsjg_id=#jsjg_id# 
+		order by j.field_order
+	</statement>
+	
+	<statement id="queryOrbitRelatedByPage">
+		<!-- select j.* from ORBIT_RELATED j,ORBIT_RELATED_SAT js
+		where j.JSJG_ID = js.JSJG_ID
+		and js.SAT_ID = #satId#
+		order by j.JSJG_ID desc -->
+		
+		select j.* from ORBIT_RELATED j
+		where  j.jsjg_status != 1
+		order by j.JSJG_ID desc
+	</statement>
+	
+	<statement id="findAllOrbitrelatedList">
+		select j.* from ORBIT_RELATED j
+		where  j.jsjg_status = 2
+		order by j.JSJG_ID desc
+	</statement>
+	<statement id="queryStartOrbitRelatedByPage">
+		select j.* from ORBIT_RELATED j,ORBIT_RELATED_SAT js
+		where j.JSJG_ID = js.JSJG_ID
+		and islike(j.JSJG_NAME,#key#) > 0
+		and js.SAT_ID = #satId# and jsjg_status = 2
+		order by j.JSJG_ID desc
+	</statement>
+	
+	<statement id="queryOrbitRelatedByCode">
+		<!-- select j.* from ORBIT_RELATED j,ORBIT_RELATED_SAT js
+		where j.JSJG_ID = js.JSJG_ID 
+		and js.SAT_ID = #sat_id# and j.JSJG_CODE = #jsjg_code# -->
+		select j.* from ORBIT_RELATED j,ORBIT_RELATED_SAT js
+		where j.JSJG_ID = js.JSJG_ID and j.JSJG_CODE = #jsjg_code#
+	</statement>
+	
+	<statement id="addRelated">
+		insert into ORBIT_RELATED (jsjg_id,jsjg_name,jsjg_code,jsjg_status,is_time_range,
+			start_time,end_time,create_time,jsjg_desc)
+		values(#jsjg_id#,#jsjg_name#,#jsjg_code#,0,#is_time_range#,
+			#start_time#,#end_time#,to_char(sysdate, 'yyyy-mm-dd hh24:mi:ss'),#jsjg_desc#)
+	</statement>
+	
+	<statement id="addField">
+		insert into ORBIT_RELATED_FIELDS (field_id,jsjg_id,field_code,field_name,
+		field_length,fiel_dscale,
+		field_type,is_display_flag,field_comment,create_time,field_order)
+		values(PK_SEQ.nextval,#jsjg_id#,#field_code#,#field_name#,
+		#field_length#,#fiel_dscale#,
+		#field_type#,#is_display_flag#,#field_comment#,
+		to_char(sysdate, 'yyyy-mm-dd hh24:mi:ss'),#field_order#)
+	</statement>
+	
+	<statement id="addRelatedSat">
+		insert into ORBIT_RELATED_SAT (sys_resource_id,jsjg_id,sat_id)
+		values(PK_SEQ.nextval,#jsjg_id#,#sat_id#)
+	</statement>
+	<statement id="deleteRelatedSat">
+		delete from ORBIT_RELATED_SAT where jsjg_id = #jsjg_id# and sat_id =  #sat_id#
+	</statement>
+	
+	<statement id="updateRelatedStatus">
+		update ORBIT_RELATED set jsjg_status = #jsjg_status# where jsjg_id = #jsjg_id#
+	</statement>
+	
+	<statement id="updateRelated">
+		<!-- update ORBIT_RELATED set jsjg_name = #jsjg_name#,
+		jsjg_code = #jsjg_code#,
+		IS_TIME_RANGE = #is_time_range#,
+		START_TIME = #start_time#,END_TIME = #end_time#
+		where jsjg_id = #jsjg_id# -->
+		update ORBIT_RELATED set jsjg_name = #jsjg_name#,
+		jsjg_code = #jsjg_code#,
+		jsjg_desc = #jsjg_desc#
+		where jsjg_id = #jsjg_id#
+	</statement>
+	
+	<statement id="viewRelated">
+		select *　from ORBIT_RELATED  where jsjg_id = #jsjg_id#
+	</statement>
+	
+	<statement id="updateFieldStatus">
+		delete from ORBIT_RELATED_FIELDS where field_id = #field_id#
+	</statement>
+	<statement id="updateField">
+		update orbit_related_fields set field_code = #field_code#,field_name = #field_name#,field_type = #field_type#,
+		field_length = #field_length#,fiel_dscale = #fiel_dscale#,is_display_flag = #is_display_flag#,
+		field_comment = #field_comment#,field_order= #field_order#
+		where field_id = #field_id#
+	</statement>
+	
+	<statement id="viewField">
+		select *　from orbit_related_fields  where field_id = #field_id#
+	</statement>
+</group>
+
+<group tablespace="deviceInfo">
+		<statement id="getDevByCode">
+			select * from STATION_INFO 
+			where DEVICE_CODE = #code#
+		</statement>
+		<statement id="getDevById">
+			select * from STATION_INFO 
+			where pk_id = #pk_id#
+		</statement>
+		<statement id="dev_info_list">
+			select * from STATION_INFO 
+			where status = 0 order by pk_id
+		</statement>
+		<statement id="pagingQuerydevList">
+			select * from STATION_INFO
+			where islike(name,#key#) > 0 or islike(DEVICE_CODE,#key#) > 0
+			and status = 0
+			 order by pk_id
+		</statement>
+		<statement id="queryDeviceList">
+			select pk_id,DEVICE_CODE,name,device_sid,parent_id device_type,remark,address,port from station_info
+			where islike(name,#device_name#) > 0 and islike(DEVICE_CODE,#device_code#) > 0
+			and parent_id = case when #device_type# = -1 then parent_id 
+			else #device_type# end
+			and status = 0
+			order by pk_id desc
+		</statement>
+		<statement id="deleteDevice">
+			update STATION_INFO set status = 1 where pk_id = #device_id#
+		</statement>
+		<statement id="addDevice">
+			insert into STATION_INFO (pk_id,DEVICE_CODE,name,device_sid,parent_id,remark,status)values(
+				#pk_id#,#code#,#name#,#device_sid#,#parent_id#,#remark#,0
+			)
+		</statement>
+		<statement id="alterDevice">
+			update STATION_INFO set DEVICE_CODE = #code#,name = #name#,device_sid = #device_sid#,
+				parent_id = #parent_id#,remark = #remark#
+			where pk_id = #pk_id#
+		</statement>
+	</group>
+
+</template>

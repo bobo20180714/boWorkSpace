@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<task-config>
+<!-- 0:按年/月/日/小时/分/秒 yyyy/mm/dd HH:mm:ss
+     1:按每年的月/日/小时/分/秒
+     2:按每月的日/小时/分/秒
+     3:按每天小时/分/秒
+     4:按每星期的/小时/分/秒 yyyy/mm/02(星期二) HH:mm:ss
+     5:按每小时的分/秒
+     6:按时间间隔
+     7:只执行一次
+-->
+<group tablespace="default">
+	<!--<task name="TaskTest" class="com.xpoplarsoft.framework.task.test.TaskTest" flag="6">
+		<timeslice>5000</timeslice>
+	</task>-->
+	
+	<!-- 综合展示 -->
+	<task name="netLinkTask" class="com.jianshi.task.NetLinkTask" flag="6">
+		<timeslice>3000</timeslice>
+	</task>
+	<task name="updateBaseDataTask" class="com.jianshi.task.UpdateBaseDataTask" flag="6">
+		<timeslice>180000</timeslice>
+	</task>
+	
+	<!-- 计算核心 -->
+	<task name="clearCache" class="com.xpoplarsoft.compute.orderDealLog.task.ClearCache" flag="6">
+		<timeslice>5000</timeslice>
+	</task>
+</group>
+</task-config>

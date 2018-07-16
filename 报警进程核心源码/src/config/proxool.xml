@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<something-else-entirely> 
+  <proxool> 
+      <alias>db_source</alias>  
+      <driver-url>jdbc:oracle:thin:@192.168.26.128:1521:yunkong</driver-url>  
+      <driver-class>oracle.jdbc.driver.OracleDriver</driver-class>  
+      <driver-properties> 
+          <property name="user" value="single"/>  
+          <property name="password" value="single"/> 
+      </driver-properties>
+      <house-keeping-sleep-time>90000</house-keeping-sleep-time>
+      <proxool.simultaneous-build-throttle>20</proxool.simultaneous-build-throttle>
+      <prototype-count>10</prototype-count>
+      <maximum-connection-count>50</maximum-connection-count>
+      <minimum-connection-count>1</minimum-connection-count>
+      <test-before-use>true</test-before-use>
+      <house-keeping-test-sql>SELECT 1 from dual</house-keeping-test-sql> 
+  </proxool> 
+</something-else-entirely>

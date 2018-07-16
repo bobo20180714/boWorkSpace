@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<param-conf>
+<group tablespace="default">
+     
+    <!-- 上传下载路径 -->
+    <param name="uploadFilePath" value="/fileupload/"/>
+    
+    	<!-- 报警模块 -->
+    <param name="logColumnNames" value="satnamecode,level_zh,begintime,alarmvalue,alarmmsg,endtime,responetime,user_name"/>
+    <param name="historyColumnNames" value="satnamecode,tmnamecode,alarmtime,level_zh,tmvalue,alarmmsg"/>
+    <param name="historyTempPath" value="tempPath/alarmHistory.xlsx"/>
+    <param name="logTempPath" value="tempPath/alarmlog.xlsx"/>
+    
+    	<!-- 特需计算进程标识 -->
+    <param name="computerCode" value="5000"/>
+    <!--源码数据存储位置 -->
+    <param name="SourceFileBasePath" value="D:/source"/>
+    
+    <!--超级管理员账号 -->
+    <param name="systemAccount" value="admin"/>
+</group>    
+</param-conf>

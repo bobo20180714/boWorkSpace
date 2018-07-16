@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<process-config>
+	<property>
+		<!-- 心跳间隔时间（毫秒）,勿修改 -->
+		<beatInterval value="1000"/>
+		<!-- 进程标识 -->
+		<code value="5000"/>
+		<!-- 进程类别 -->
+		<type value="1"/>
+		<!-- 进程标识名称 -->
+		<class_name value="空闲进程"/>
+		<!-- 调度进程标识 -->
+		<targetId value="1000"/>
+		<!-- 进程使用adapter名称 -->
+		<adapterName value="alarm_adapter"/>
+		<!-- 进程使用connector名称 -->
+		<connectorName value="alarm_connector"/>
+		<!-- 待反馈报文轮询间隔时间（毫秒） -->
+		<reedbackInterval value="3000"/>
+		<!-- 待反馈报文重复发送次数上限,-1为不限次数 -->
+		<limit value="3"/>
+	</property>
+	<!-- 进程要启动的应用程序，依照启动调用顺序依次排列。
+		classPath为类全路径
+		method为启动入口方法名称
+		isThtead为是否需要启动线程池
+		size为最大线程数
+	 -->
+	<program classPath="" method="" isThtead="false" size="0">
+		<!-- 入口方法参数列表，按照顺序排列，type为参数类型，java基础类型不需要包路径，其它类型请写全类名及包路径 -->
+		<arg type="int"/>
+	</program>
+	<executers>
+		<!-- 反馈报文处理 -->
+		<executer type="9" class="com.xpoplarsoft.process.core.actuator.ReedBackExectuer"/>
+		<!-- 进程调度指令处理 -->
+		<executer type="2" class="com.xpoplarsoft.process.order.executer.ManagerOrderExecuter"/>
+		<!-- 进程功能指令处理 -->
+		<executer type="3" class="com.xpoplarsoft.process.order.executer.ManagerOrderExecuter"/>
+		<!-- 业务报文处理 -->
+		<executer type="4" class="com.xpoplarsoft.process.order.executer.ManagerServiceExecuter"/>
+		<!-- 具体指令代码 -->
+		<!-- 进程启动处理 -->
+		<executer type="1000" class=""/>
+		<!-- 进程暂停处理 -->
+		<executer type="1001" class=""/>
+		<!-- 发送日志处理 -->
+		<executer type="1002" class=""/>
+		<!-- 发送运行数据处理 -->
+		<executer type="1003" class=""/>
+		<!-- 发送异常处理 -->
+		<executer type="1004" class=""/>
+	</executers>
+</process-config>

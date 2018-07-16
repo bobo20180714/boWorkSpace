@@ -1,0 +1,395 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<template>
+<group tablespace="alarm">
+	
+	<statement id="getAlarmType">
+		select t.* from ALARM_RULE_INFO t where t.canalarm = 0 and tmid = #tmId#
+	</statement>
+	<!-- 根据卫星编号和遥测查询门限报警规则 -->
+	<statement id="selectLimitRuleBySat">
+	<![CDATA[
+	      select tm.TMID tm_param_id,tm.TMNAME tm_param_name,tm.TMCODE tm_param_code,tm.SATID sat_id,tm.JUDGETYPE,
+	      ruleInfo.ruleid,ruleInfo.CANALARM,ruleInfo.RULECONTENT,
+	      ruleInfo.JUDGECOUNT,rownum n,tm.tm_param_type
+	      from 
+	      (select ALARM_TM_INFO.*,tm.tm_param_type from ALARM_TM_INFO , tm where tm.tm_param_id = ALARM_TM_INFO.TMID and tm.status = 0) tm
+	      left join  (select * from ALARM_RULE_INFO where judgetype = 0 ) ruleInfo
+	      on tm.tmid = ruleInfo.Tmid
+	      where tm.judgetype = 0
+	      and tm.satid = #satid#
+	      and (islike(tm.TMNAME,#key#) > 0 OR islike(tm.TMCODE,#key#) > 0)
+	       order by tm.TMID
+	]]>
+	</statement>
+	<!-- <statement id="getLimitRuleCount">
+	<![CDATA[
+	select count(*) count from (
+			select tm.TMID tm_param_id,tm.TMNAME tm_param_name,tm.TMCODE tm_param_code,tm.SATID sat_id,tm.JUDGETYPE,
+	      ruleInfo.ruleid,ruleInfo.CANALARM,ruleInfo.RULECONTENT,
+	      ruleInfo.JUDGECOUNT,rownum n
+	      from ALARM_TM_INFO tm
+	      left join ALARM_RULE_INFO ruleInfo
+	      on tm.tmid = ruleInfo.Tmid
+	      where tm.judgetype = #judgetype#
+	      and tm.satid = #satid#
+	      and islike(tm.TMNAME,#key#) > 0
+	      order by create_time desc
+	)
+	]]>
+	</statement> -->
+	
+	<!-- 根据卫星编号和遥测查询状态字报警规则    孟祥超 修改-->
+	<statement id="selectStateRuleBySatid">
+<!--		select t.* from (
+			select ruleid, sat_id, tm_param_id, tm_param_name, tm_param_code, 
+				canalarm, judgetype, judgecount, rulecontent, create_time, create_user, rownum n
+			from limit_rule_view
+			where judgetype=2 and sat_id = #satid# and (islike('tm_param_name',#key#) > 0 or islike('tm_param_code',#key#) > 0)
+			order by create_time) t
+		where n>#start# and n<=#start#+#limit# 
+-->
+	<![CDATA[
+		select ati.*,t.tm_param_type tmtype from ALARM_TM_INFO ati,tm t
+		where ati.tmid = t.tm_param_id
+    and t.status = 0
+   		and ati.judgetype = #judgetype# 
+		and ati.satid = #satid#  
+		and (islike(ati.TMNAME,#key#) > 0 or islike(ati.TMCODE,#key#) > 0)
+		order by ati.tmid
+	]]>
+	</statement>
+	
+	<statement id="queryStateRuleListByTM">
+	<![CDATA[
+		select * from ALARM_RULE_INFO where judgetype = 2 and tmid = #tmid# order by create_time desc
+	]]>
+	</statement>
+	
+	<statement id="querySonStateRule">
+	<![CDATA[
+		select ALARM_RULE_INFO.*,tm.tm_param_name,tm.tm_param_code from ALARM_RULE_INFO,tm 
+		where tm.tm_param_id = ALARM_RULE_INFO.tmid and
+		ALARM_RULE_INFO.judgetype = 2 and ALARM_RULE_INFO.ruleid = #ruleId#
+	]]>
+	</statement>
+	
+<!-- 	<statement id="getStateRuleCount">
+	<![CDATA[
+		select count(*) count from ALARM_TM_INFO where judgetype=2  order by tmid desc
+	]]>
+	</statement> -->
+	
+	<!-- 根据卫星编号和遥测编号查询报警规则 -->
+	<statement id="selectStateRuleBySat">
+	<![CDATA[
+			select ruleid, sat_id, tm_param_id, tm_param_name, tm_param_code, 
+				canalarm, judgetype, judgecount, rulecontent, create_user,create_time
+			from limit_rule_view
+			where sat_id = #satid# and tm_param_id = #tmId#
+			and case when #judgetype# is null then 1=1 else judgetype = #judgetype# end
+			and case when #canalarm# is null then 1=1 else canalarm = #canalarm# end
+			order by create_time
+	]]>
+	</statement>
+	
+	<!-- 根据主键查询报警规则 
+		孟祥超 修改  没有规则使用-->
+	<statement id="getRuleByTmId">
+<!--			select ruleid, sat_id, tm_param_id, tm_param_name, tm_param_code, -->
+<!--				canalarm, judgetype, judgecount, rulecontent-->
+<!--			from limit_rule_view-->
+<!--			where ruleid = #ruleid#-->
+	<![CDATA[
+		select tm.TMID tm_param_id,tm.TMNAME tm_param_name,tm.TMCODE tm_param_code,tm.SATID sat_id,tm.JUDGETYPE
+          from ALARM_TM_INFO tm
+          where tm.judgetype = 0
+          and tm.tmid = #tmid#
+	]]>
+	</statement>
+	
+		
+	<!-- 根据主键查询报警规则 
+		孟祥超 修改  有规则使用-->
+	<statement id="getRuleById">
+	<![CDATA[
+		select tm.TMID tm_param_id,tm.TMNAME tm_param_name,tm.TMCODE tm_param_code,tm.SATID sat_id,tm.JUDGETYPE,
+	        ruleInfo.ruleid,ruleInfo.CANALARM,ruleInfo.RULECONTENT,
+	        ruleInfo.JUDGECOUNT
+	        from ALARM_TM_INFO tm
+	        left join ALARM_RULE_INFO ruleInfo
+	        on tm.tmid = ruleInfo.Tmid
+	        where tm.judgetype = 0
+          and tm.tmid = #tmid# and ruleInfo.ruleid = #ruleid#
+	]]>
+	</statement>
+
+	<!-- 添加遥测报警信息 -->
+    <statement id="insertTmAlarmInfo">
+		insert into alarm_tm_info
+			(satid, tmid, tmname, tmcode, judgetype)
+		values
+			(sys_guid(), #satid#, #tmid#, #tmname#, #tmcode#,  #judgetype#)
+	</statement>
+	<!-- 添加门限或状态字报警规则信息  
+		孟祥超 update dataseq.nextval 修改为#ruleid#-->
+    <statement id="insertTmRuleInfo">
+		insert into ALARM_RULE_INFO
+			(ruleid, tmid, canalarm, judgetype, rulecontent, judgecount,
+				create_time
+			)
+		values
+			(#ruleid#, #tmid#, #canalarm#,  #judgetype#, #rulecontent#,  #judgecount#,
+				to_char(sysdate,'yyyy-MM-dd HH24:MI:SS')
+			)
+	</statement>
+	
+	<!-- 修改门限或状态字报警规则信息 -->
+	<statement id="updateTmRuleInfo">
+		update ALARM_RULE_INFO
+		   set rulecontent = #rulecontent#,
+		       judgecount = #judgecount#,
+		       canalarm = #canalarm#
+		 where ruleid = #ruleid#
+	</statement>
+	
+	<!-- 修改是否报警 -->
+	<statement id="updateTmCanAlarm">
+		update ALARM_RULE_INFO
+		   set canalarm = #canalarm#
+		 where tmid = #tmid# and ruleid != #ruleid#
+	</statement>
+	
+	<!-- 删除门限或状态字报警规则信息 -->
+	<statement id="deleteTmRuleInfo">
+		delete ALARM_RULE_INFO
+		 where ruleid = #ruleid#
+	</statement>
+	
+	<!-- 设置是否报警 -->
+	<statement id="updateTmRuleCanalarmByTm">
+		update ALARM_RULE_INFO
+		   set canalarm = case when #canalarm# = 0 then 1 else 0 end
+		 where tmid = #tmid#
+	</statement>
+	<statement id="updateTmRuleCanalarmById">
+		update ALARM_RULE_INFO
+		   set canalarm = #canalarm#
+		 where ruleid = #ruleid#
+	</statement>
+	 
+	<!-- 设置报警类型 -->
+	<statement id="updateTmAlarmJudgetype">
+		update alarm_tm_info
+		   set judgetype = #judgetype#
+		 where tmid = #tmid#
+	</statement>
+	
+	<!-- 改为不报警 -->
+	<statement id="updateToNoAlarm">
+		update alarm_rule_info
+		   set canalarm = '1' 
+		where judgetype = #judgetype#
+		and tmid = #tmid#
+	</statement>
+	 
+	<!-- 查询所有系统配置信息 -->
+	<statement id="findGlobalConfig">
+	<![CDATA[
+		select configitem, content from global_config
+		 where islike('configitem',#key#) > 0
+	]]>
+	</statement>
+	 
+	<!-- 查询系统配置信息 -->
+	<statement id="getGlobalConfig">
+	<![CDATA[
+		select configitem, content from global_config
+		 where configitem = #configitem#
+	]]>
+	</statement>
+	 
+	<!-- 添加系统配置信息 -->
+	<statement id="addGlobalConfig">
+	
+		insert into global_config
+		  (configitem, content)
+		values
+		  (#configitem#, #content#);
+
+	</statement>
+	 
+	<!-- 修改系统配置信息 -->
+	<statement id="updateGlobalConfig">
+
+		update global_config set content =#content# 
+		 where configitem = #configitem#
+
+	</statement>
+	 
+	<!-- 查询报警历史
+		孟祥超 修改 
+		 alarmmsg 条件sql部分
+	 -->
+	<statement id="findAlarmHistory">
+	<![CDATA[
+		 	select alarmid, s.sat_id, s.sat_name, s.sat_code, s.mid, 
+		 	        to_char(begintime, 'yyyy-mm-dd HH24:mi:ss:ff') as begintime,
+		 	        to_char(endtime, 'yyyy-mm-dd HH24:mi:ss:ff') as endtime,
+		 		alarmlevel, alarmmsg, 
+		 		to_char(responetime, 'yyyy-mm-dd HH24:mi:ss:ff') as responetime,
+		 		u.user_id, u.user_name, response, 
+		 		alarmvalue, 
+		 		s.sat_name||'('||s.sat_code||')' satnamecode, 
+		 		tm.tm_param_name||'('||tm.tm_param_code||')' tmnamecode
+			from alarm_info ai, satellite s, users u,tm
+			where ai.satid = s.sat_id and ai.userid = u.user_id and tm.tm_param_id = ai.tmid
+			 and ai.endtime is not null
+      		 and ai.responetime is not null
+			 and satid = #satid#
+			 and (islike(tm.tm_param_code,#paramName#) > 0 or islike(tm.tm_param_name,#paramName#) > 0)
+			 and (begintime) >= case when #alarmStartTime# is null 
+			  		then str2timestamp('0001-01-01 00:00:00.001') 
+			  		else str2timestamp(#alarmStartTime#) end
+			 and (begintime) < case when #alarmEndTime# is null 
+			  		then str2timestamp('9999-12-31 23:59:59.999') 
+			  		else str2timestamp(#alarmEndTime#) end
+			order by begintime
+	]]>
+	</statement>
+	
+	<statement id="findAlarmHistory_new">
+	<![CDATA[
+		 	 select satname||'('||satcode||')' satnamecode,TMNAME||'('||TMCODE||')' tmnamecode,
+		 	 alarmlevel,alarmmsg,tmvalue,
+		 	 to_char(alarmtime, 'yyyy-mm-dd HH24:mi:ss:ff') as alarmtime from ALARM_INFO_LOG
+		 	 where satid = #satid# and (islike(tmcode,#paramName#) > 0 or islike(tmname,#paramName#) > 0)
+			 and (alarmtime) >= case when #alarmStartTime# is null 
+			  		then str2timestamp('0001-01-01 00:00:00.001') 
+			  		else str2timestamp(#alarmStartTime#) end
+			 and (alarmtime) < case when #alarmEndTime# is null 
+			  		then str2timestamp('9999-12-31 23:59:59.999') 
+			  		else str2timestamp(#alarmEndTime#) end
+			order by alarmtime desc
+	]]>
+	</statement>
+	
+	<!-- 报警日志 -->
+	<statement id="queryAlarmInfoLog">
+	<![CDATA[
+		  select PK_ID,SATCODE,SATNAME,TMCODE,
+         TMNAME,to_char(ALARMTIME,'yyyy-mm-dd HH24:mi:ss:ff') ALARMTIME,ALARMLEVEL,ALARMMSG,TMVALUE,alarmlevelinfo,alarmlevelzh,
+         SATNAME||'('||SATCODE||')' satnamecode,TMNAME||'('||TMCODE||')' tmnamecode
+        from (select * from table(pkg_alarmhistory.queryHistory(#alarmid#)))
+	]]>
+	</statement>
+	<!-- 报警日志（导出） -->
+	<statement id="findAlarmInfoLogNoPage">
+	<![CDATA[
+		 select PK_ID,SATID,SATCODE,SATNAME,TMID,TMCODE,
+		 		TMNAME,to_char(ALARMTIME,'yyyy-mm-dd HH24:mi:ss:ff') ALARMTIME,ALARMLEVEL,ALARMMSG,TMVALUE,
+		 		SATNAME||'('||SATCODE||')' satnamecode,TMNAME||'('||TMCODE||')' tmnamecode
+	      from ALARM_INFO_LOG
+	      where satid = #satid#
+			 and (islike(TMCODE,#paramName#) > 0 or islike(TMNAME,#paramName#) > 0)
+	        and (ALARMTIME) >= case when #alarmStartTime# is null 
+	            then str2timestamp('0001-01-01 00:00:00.001') 
+	            else str2timestamp(#alarmStartTime#) end
+	        and (ALARMTIME) < case when #alarmEndTime# is null 
+	            then str2timestamp('9999-12-31 23:59:59.999') 
+	            else str2timestamp(#alarmEndTime#) end
+	      order by ALARMTIME desc
+	]]>
+	</statement>
+	
+	
+	
+	<statement id="queryAlarmPageList">
+	<![CDATA[
+	 	select ALARMPAGEID,PAGENAME from ALARM_PAGE order by ALARMPAGEID desc
+	]]>
+	</statement>
+	
+	<statement id="queryAlarmPageSatsList">
+	<![CDATA[
+	 	select SATELLITE.SAT_NAME,SATELLITE.SAT_ID from SAT_PAGE,SATELLITE 
+		where  SATELLITE.SAT_ID = SAT_PAGE.SAT_ID
+ 		and SAT_PAGE.ALARMPAGEID = #alarmpageid#
+	]]>
+	</statement>
+	
+	<statement id="queryAlarmInfo">
+	<![CDATA[
+	 	select page.alarmpageid,page.pagename,
+       		SATELLITE.Sat_Id sys_resource_id,SATELLITE.Sat_Name name,
+       		SATELLITE.SAT_CODE code,SATELLITE.MID
+	    from alarm_page page ,SAT_PAGE satPage,SATELLITE
+	    where page.alarmpageid = satPage.Alarmpageid 
+	    and satPage.Sat_Id = SATELLITE.Sat_Id
+	    and page.alarmpageid = #pageId#
+	]]>
+	</statement>
+		
+	<statement id="updatePage">
+	<![CDATA[
+		update ALARM_PAGE set PAGENAME = #PAGENAME#
+		where ALARMPAGEID = #ALARMPAGEID#
+	]]>
+	</statement>
+			
+	<statement id="deletePageSat">
+	<![CDATA[
+		delete SAT_PAGE
+		where ALARMPAGEID = #ALARMPAGEID#
+	]]>
+	</statement>
+	
+	<statement id="addPageSat">
+	<![CDATA[
+		insert into SAT_PAGE(ALARMPAGEID,SAT_ID)values(#ALARMPAGEID#,#SAT_ID#)
+	]]>
+	</statement>
+	
+	<statement id="query_dataseq">
+	<![CDATA[
+		select dataseq.nextval pkid from dual
+	]]>
+	</statement>
+	
+	<statement id="addPage">
+	<![CDATA[
+		insert into ALARM_PAGE(ALARMPAGEID,PAGENAME)values(#ALARMPAGEID#,#PAGENAME#)
+	]]>
+	</statement>
+	
+	<statement id="deleteStateRule">
+	<![CDATA[
+		delete from ALARM_RULE_INFO 
+		where ruleid = #ruleId#
+	]]>
+	</statement>
+	
+		
+	<statement id="delete_alarmpage">
+	<![CDATA[
+		delete from ALARM_PAGE 
+		where ALARMPAGEID = #alarmpageid#
+	]]>
+	</statement>
+	<statement id="delete_sat_page">
+	<![CDATA[
+		delete from SAT_PAGE 
+		where ALARMPAGEID = #alarmpageid#
+	]]>
+	</statement>
+	
+	<statement id="add_alarm_info_log">
+	<![CDATA[
+		insert into alarm_info_log(pk_id,satid,satcode
+		,satname,tmid,tmcode,tmname,alarmtime,alarmlevel
+		,alarmmsg,tmvalue)values(#pk_id#,#satid#,#satcode#
+		,#satname#,#tmid#,#tmcode#,#tmname#,str2timestamp(#alarmtime#),#alarmlevel#
+		,#alarmmsg#,#tmvalue#)
+	]]>
+	</statement>
+</group>	
+</template>

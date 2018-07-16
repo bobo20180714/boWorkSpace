@@ -1,0 +1,129 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title></title>
+<link href="../ligerUI/skins/Aqua/css/ligerui-all.css" rel="stylesheet" type="text/css" />
+<style type="text/css">
+	body{
+		padding:10px;
+	}
+	form{
+		width:360px;
+		margin:0 auto;
+	}
+    form td{ 
+    	padding:5px;
+    } 
+    td:first-child{
+    	text-align:right
+    }
+    .l-button{
+	    width:60px; 
+	    float:left; 
+	    margin-top:10px;
+	    margin-left:10px;
+    }
+    .l-verify-tip{ 
+	    left:230px; 
+	    top:120px;
+    }
+</style>
+</head>
+<body>
+<form enctype="multipart/form-data" method="post">
+	<table>
+		<tr>
+			<td>插件名称：</td>
+			<td><input name="name" type="text"></td>
+		</tr>
+		<tr>
+			<td>图标：</td>
+			<td><input class="liger-popupedit"></td>
+		</tr>
+		<tr>
+			<td>说明：</td>
+			<td><textarea name="comment" cols="40" rows="4" class="l-textarea"></textarea></td>
+		</tr>
+	</table>
+	<input type="file" id="file" name="upfile" style="display:none"/>
+	<input type="button" value="确定" class="l-button" style="margin-left:110px;"/> 
+	<input type="button" value="取消" class="l-button"/>	
+</form>
+<script src="../js/jquery-1.10.2.min.js" type="text/javascript"></script>
+<script src="../ligerUI/js/core/base.js" type="text/javascript"></script> 
+<script src="../ligerUI/js/plugins/ligerDialog.js" type="text/javascript"></script>
+<script src="../ligerUI/js/plugins/ligerButton.js" type="text/javascript"></script>
+<script src="../ligerUI/js/plugins/ligerTextBox.js" type="text/javascript"></script>
+<script src="../ligerUI/js/plugins/ligerPopupEdit.js" type="text/javascript"></script>
+<script src="../js/util.js" type="text/javascript"></script>
+<script type="text/javascript">	
+	var isEdit=getUrlParam('isEdit')*1;
+	var data=parent._plugInfo;
+	$('input[name=name]').ligerTextBox({width:260});
+	$('.liger-popupedit').ligerPopupEdit({
+		width:260,
+		readOnly:true,
+		onButtonClick:function(){
+			$('#file').click().change(function(){
+				$('.liger-popupedit').val($(this).val());
+			});
+		}
+	});
+	if(isEdit){		
+		$('input[name=name]').val(data.name);
+		$('.liger-popupedit').val('原图');
+		$('[name=comment]').val(data.comment);
+	}
+	$('input[value=确定]').click(function(){
+		var name=$('[name=name]').val().trim();
+		if(name==''){
+			$.ligerDialog.warn('插件名称不能空！');
+			return;
+		}
+		if(isEdit==0&&$('#file')[0].files.length==0){
+			$.ligerDialog.warn('图标不能空！');
+			return;
+		}
+		var form={
+				name:name,
+				comment:$('[name=comment]').val().trim(),
+				state:0
+			};
+		var formData=new FormData($('form')[0]);		
+		if(isEdit) {
+			formData.append('id',data.id);
+			formData.append('icon',data.icon);
+			form.icon=data.icon;
+		}
+		else{
+			form.icon=uuid();
+			formData.append('icon',form.icon);
+		}
+	     $.ajax({  
+	          url: isEdit?'../rest/plug/editPlug':'../rest/plug/addPlug',  
+	          type: 'POST',  
+	          data: formData,  
+	          processData: false,
+	          contentType:false,
+	          success: function (ret) {
+	        	 form.id=ret;
+	        	 var selected=parent.plugGrid.getSelected();
+	        	 parent._plugInfo=form;
+     	    	 if(isEdit){
+     	    		 parent.plugGrid.updateRow(selected,form);		     	    		 
+     	    	 }
+     	    	 else{
+     	    		parent.plugGrid.addRow(form);
+     	    		parent.plugGrid.select(form);
+     	    	 }
+	        	 parent._opener.close();      	    
+	          }
+	     });
+	});
+	$('input[value=取消]').click(function(){
+		parent._opener.close();
+	});
+</script>
+</body>
+</html>
